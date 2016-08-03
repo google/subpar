@@ -1,0 +1,15 @@
+__main__.py
+subpar/__init__.py
+subpar/runtime/__init__.py
+subpar/runtime/support.py
+subpar/tests/__init__.py
+subpar/tests/package_a/__init__.py
+subpar/tests/package_a/a
+subpar/tests/package_a/a.py
+subpar/tests/package_a/a_dat.txt
+subpar/tests/package_a/a_lib.py
+subpar/tests/package_a/a_lib_dat.txt
+subpar/tests/package_b/__init__.py
+subpar/tests/package_b/b
+subpar/tests/package_b/b.py
+subpar/tests/package_b/b_dat.txt
