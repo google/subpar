@@ -10,7 +10,7 @@ designed to work well with [Bazel](http://bazel.io).
 ```python
 git_repository(
     name = "subpar",
-    remote = "TODO",
+    remote = "https://github.com/google/subpar",
     commit = "HEAD",
 )
 ```
