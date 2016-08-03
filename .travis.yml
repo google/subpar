@@ -1,0 +1,15 @@
+language:
+  - java
+jdk:
+  - oraclejdk8  # Building Bazel requires JDK8.
+before_install:
+  - wget https://github.com/bazelbuild/bazel/archive/0.3.0.zip  # Replace with desired version
+  - unzip 0.3.0.zip
+  - cd bazel-0.3.0
+  - ./compile.sh
+  - sudo cp output/bazel /usr/bin/bazel
+  - cd ..
+  - rm -rf bazel-0.3.0
+script:
+  - bazel build //...
+  - bazel test //...
