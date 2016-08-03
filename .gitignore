@@ -1,0 +1,9 @@
+# Bazel files
+/bazel-*
+
+# Python
+*.pyc
+
+# Editor
+*~
+\#*\#
