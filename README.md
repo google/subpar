@@ -1,5 +1,7 @@
 # Subpar
 
+[![Build Status](https://travis-ci.org/google/subpar.svg?branch=master)](https://travis-ci.org/google/subpar)
+
 Subpar is a utility for creating self-contained python executables.  It is
 designed to work well with [Bazel](http://bazel.io).
 
