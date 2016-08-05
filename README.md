@@ -40,7 +40,6 @@ directly without needing the .runfiles directory.  The body of the
 
 * C extension modules in 'deps' is not yet supported
 * Automatic re-extraction of '.runfiles' is not yet supported
-* Python 3 is not yet supported
 * Does not include a copy of the Python interpreter ('hermetic .par')
 
 ## Example
