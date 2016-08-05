@@ -1,5 +1,3 @@
-#!/usr/bin/python2
-
 # Copyright 2016 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,25 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Integration test program B for Subpar
+"""Integration test program F for Subpar.
 
-Test direct dependency on test program A and test library A.
+Test Python3 specific functionality
 """
 
-import pkgutil
-
-# Test package import from another package
-from subpar.tests.package_a import a
-from subpar.tests.package_a import a_lib
-
+import sys
 
 def main():
-    a.main()
-    a_lib.lib()
-    print('In b.py main()')
-    # Test resource extraction
-    b_dat = pkgutil.get_data('subpar.tests.package_b', 'b_dat.txt')
-    assert (b_dat == b"Dummy data file for b.py\n"), b_dat
+    assert sys.version_info.major == 3, sys.version
+    print('In f_PY2.py main()')
 
 
 if __name__ == '__main__':

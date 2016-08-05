@@ -23,4 +23,4 @@ def lib():
     print('In a_lib.py lib()')
     # Test resource extraction
     a_lib_dat = pkgutil.get_data('subpar.tests.package_a', 'a_lib_dat.txt')
-    assert (a_lib_dat == "Dummy data file for a_lib.py\n"), a_lib_dat
+    assert (a_lib_dat == b"Dummy data file for a_lib.py\n"), a_lib_dat

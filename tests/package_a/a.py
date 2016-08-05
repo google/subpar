@@ -62,21 +62,21 @@ else:
         # pylint: disable=import-self
         from . import a as a1
         raise AssertionError("This shouldn't have worked: %r" % a1)
-    except (AttributeError, ImportError) as e:
-        assert e.message == 'cannot import name a', e
+    except ImportError as e:
+        assert 'cannot import name' in str(e), e
     try:
         # pylint: disable=import-self
         import subpar.tests.package_a.a as a2
         raise AssertionError("This shouldn't have worked: %r" % a2)
-    except (AttributeError, ImportError) as e:
-        assert e.message == "'module' object has no attribute 'a'", e
+    except AttributeError as e:
+        assert "'module' object has no attribute 'a'" in str(e), e
 
 
 def main():
     print('In a.py main()')
     # Test resource extraction
     a_dat = pkgutil.get_data('subpar.tests.package_a', 'a_dat.txt')
-    assert (a_dat == "Dummy data file for a.py\n"), a_dat
+    assert (a_dat == b'Dummy data file for a.py\n'), a_dat
 
 
 if __name__ == '__main__':

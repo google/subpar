@@ -15,100 +15,84 @@ sh_library(
 )
 
 # Targets used by tests below
-par_binary(
-    name = "package_c/c",
+[par_binary(
+    name = "package_c/c_%s" % version,
     srcs = ["package_c/c.py"],
-    deps = ["//tests/package_b:b"],
-)
+    default_python_version = version,
+    main = "package_c/c.py",
+    srcs_version = "PY2AND3",
+    deps = ["//tests/package_b:b_%s" % version],
+) for version in [
+    "PY2",
+    "PY3",
+]]
 
-par_binary(
-    name = "package_d/d",
+[par_binary(
+    name = "package_d/d_%s" % version,
     srcs = ["package_d/d.py"],
+    default_python_version = version,
     imports = [
         "package_b",
         "package_c",
     ],
+    main = "package_d/d.py",
+    srcs_version = "PY2AND3",
     deps = [
-        "//tests:package_c/c",
-        "//tests/package_b:b",
+        "//tests:package_c/c_%s" % version,
+        "//tests/package_b:b_%s" % version,
     ],
-)
+) for version in [
+    "PY2",
+    "PY3",
+]]
 
-par_binary(
-    name = "package_e/e",
+[par_binary(
+    name = "package_e/e_%s" % version,
     srcs = ["package_e/e.py"],
     data = [
         "@test_workspace//:data_file.txt",
     ],
+    default_python_version = version,
+    main = "package_e/e.py",
+    srcs_version = "PY2AND3",
+) for version in [
+    "PY2",
+    "PY3",
+]]
+
+par_binary(
+    name = "package_f/f_PY2",
+    srcs = ["package_f/f_PY2.py"],
+)
+
+par_binary(
+    name = "package_f/f_PY3",
+    srcs = ["package_f/f_PY3.py"],
+    default_python_version = "PY3",
+    srcs_version = "PY2AND3",
 )
 
 # Test targets
-sh_test(
-    name = "basic_test",
+[sh_test(
+    name = "%s_%s" % (name, version),
     size = "small",
     srcs = ["test_harness.sh"],
     args = [
-        "tests/package_a/a.par",
-        "tests/package_a/a_filelist.txt",
+        "tests%s_%s.par" % (path, version),
+        "tests%s_%s_filelist.txt" % (path, version),
     ],
     data = [
-        "//tests/package_a:a.par",
-        "//tests/package_a:a_filelist.txt",
+        "//tests%s_%s.par" % (label, version),
+        "//tests%s_%s_filelist.txt" % (label, version),
     ],
-)
-
-sh_test(
-    name = "direct_dependency_test",
-    size = "small",
-    srcs = ["test_harness.sh"],
-    args = [
-        "tests/package_b/b.par",
-        "tests/package_b/b_filelist.txt",
-    ],
-    data = [
-        "//tests/package_b:b.par",
-        "//tests/package_b:b_filelist.txt",
-    ],
-)
-
-sh_test(
-    name = "indirect_dependency_test",
-    size = "small",
-    srcs = ["test_harness.sh"],
-    args = [
-        "tests/package_c/c.par",
-        "tests/package_c/c_filelist.txt",
-    ],
-    data = [
-        "//tests:package_c/c.par",
-        "//tests:package_c/c_filelist.txt",
-    ],
-)
-
-sh_test(
-    name = "import_root_test",
-    size = "small",
-    srcs = ["test_harness.sh"],
-    args = [
-        "tests/package_d/d.par",
-        "tests/package_d/d_filelist.txt",
-    ],
-    data = [
-        "//tests:package_d/d.par",
-        "//tests:package_d/d_filelist.txt",
-    ],
-)
-
-sh_test(
-    name = "external_workspace_test",
-    size = "small",
-    srcs = ["test_harness.sh"],
-    args = [
-        "tests/package_e/e.par",
-        "tests/package_e/e_filelist.txt",
-    ],
-    data = [
-        "//tests:package_e/e.par",
-        "//tests:package_e/e_filelist.txt",
-    ],
-)
+) for name, label, path in [
+    ("basic_test", "/package_a:a", "/package_a/a"),
+    ("direct_dependency_test", "/package_b:b", "/package_b/b"),
+    ("indirect_dependency_test", ":package_c/c", "/package_c/c"),
+    ("import_root_test", ":package_d/d", "/package_d/d"),
+    ("external_workspace_test", ":package_e/e", "/package_e/e"),
+    ("version_test", ":package_f/f", "/package_f/f"),
+] for version in [
+    "PY2",
+    "PY3",
+]]
