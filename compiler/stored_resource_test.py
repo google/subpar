@@ -42,14 +42,14 @@ class StoredResourceTest(unittest.TestCase):
         z.close()
 
     def test_StoredFile(self):
-        expected_content = 'Contents of foo/bar'
+        expected_content = b'Contents of foo/bar'
         name = 'foo/bar'
         f = test_utils.temp_file(expected_content)
         resource = stored_resource.StoredFile(name, f.name)
         self._write_and_check(resource, name, expected_content)
 
     def test_StoredContent(self):
-        expected_content = 'Contents of foo/bar'
+        expected_content = b'Contents of foo/bar'
         name = 'foo/bar'
         resource = stored_resource.StoredContent(name, expected_content)
         self._write_and_check(resource, name, expected_content)

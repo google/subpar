@@ -15,23 +15,40 @@ py_library(
     data = [
         "//runtime:support.py",
     ],
+    srcs_version = "PY2AND3",
 )
 
 py_library(
     name = "test_utils",
     srcs = ["test_utils.py"],
+    srcs_version = "PY2AND3",
 )
 
 py_binary(
     name = "compiler",
     srcs = ["compiler.py"],
+    default_python_version = "PY2",
+    main = "compiler.py",
+    srcs_version = "PY2AND3",
+    deps = [":compiler_lib"],
+)
+
+py_binary(
+    name = "compiler3",
+    srcs = ["compiler.py"],
+    default_python_version = "PY3",
+    main = "compiler.py",
+    srcs_version = "PY2AND3",
     deps = [":compiler_lib"],
 )
 
 [py_test(
-    name = src_name + "_test",
+    name = "%s_%s_test" % (src_name, version),
     size = "small",
     srcs = [src_name + "_test.py"],
+    default_python_version = version,
+    main = src_name + "_test.py",
+    srcs_version = "PY2AND3",
     deps = [
         ":compiler_lib",
         ":test_utils",
@@ -41,4 +58,7 @@ py_binary(
     "manifest_parser",
     "python_archive",
     "stored_resource",
+] for version in [
+    "PY2",
+    "PY3",
 ]]

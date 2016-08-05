@@ -28,6 +28,7 @@ See also https://www.python.org/dev/peps/pep-0441/
 
 """
 
+import io
 import logging
 import os
 import pkgutil
@@ -49,9 +50,9 @@ del _
 """
 
 # Fully qualified names of subpar packages
-_compiler_package = 'subpar.compiler'
-_runtime_package = 'subpar.runtime'
-_runtime_path = 'subpar/runtime'
+_subpar_package = 'subpar'
+_compiler_package = _subpar_package + '.compiler'
+_runtime_package = _subpar_package + '.runtime'
 
 # List of files from the runtime package to include in every .par file
 _runtime_support_files = ['support.py',]
@@ -74,7 +75,7 @@ class PythonArchive(object):
                  manifest_filename,
                  manifest_root,
                  output_filename,
-    ):
+                ):
         self.main_filename = main_filename
 
         self.import_roots = import_roots
@@ -135,11 +136,16 @@ class PythonArchive(object):
         Returns:
             A StoredResource
         """
-        contents = _main_template % {
+        template_contents = _main_template % {
             'runtime_package': _runtime_package,
             'import_roots': str(self.import_roots),
         }
-        contents = contents + open(self.main_filename, 'r').read()
+        with open(self.main_filename, 'rb') as main_file:
+            main_contents = main_file.read()
+        # We don't know the encoding of the main source file, so
+        # require that the template be pure ascii, which we can safely
+        # prepend.
+        contents = template_contents.encode('ascii') + main_contents
         return stored_resource.StoredContent('__main__.py', contents)
 
     def scan_manifest(self, manifest):
@@ -190,7 +196,8 @@ class PythonArchive(object):
         This tells the operating system (well, UNIX) how to execute the file.
         """
         logging.debug('Writing boilerplate...')
-        temp_parfile.write('#!%s\n' % self.interpreter)
+        boilerplate = '#!%s\n' % self.interpreter
+        temp_parfile.write(boilerplate.encode('ascii'))
 
     def write_zip_data(self, temp_parfile, stored_resources):
         """Write the second part of a parfile, consisting of ZIP data
@@ -211,7 +218,7 @@ class PythonArchive(object):
         """Move newly created parfile to its final filename."""
         # Python 2 doesn't have os.replace, so use os.rename which is
         # not atomic in all cases.
-        os.chmod(temp_parfile_name, 0755)
+        os.chmod(temp_parfile_name, 0o0755)
         os.rename(temp_parfile_name, self.output_filename)
 
 
@@ -230,8 +237,8 @@ def fetch_support_file(name):
     Returns:
         A StoredResource representing the content of that file
     """
-    stored_filename = os.path.join(_runtime_path, name)
-    content = pkgutil.get_data(_runtime_package, name)
+    stored_filename = os.path.join(_subpar_package, 'runtime', name)
+    content = pkgutil.get_data(_subpar_package, 'runtime/' + name)
     # content is None means the file wasn't found.  content == '' is
     # valid, it means the file was found and was empty.
     if content is None:

@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import StringIO
+import io
 import sys
 import unittest
 
@@ -26,7 +26,7 @@ class SupportTest(unittest.TestCase):
     def test_log(self):
         old_stderr = sys.stderr
         try:
-            mock_stderr = StringIO.StringIO()
+            mock_stderr = io.StringIO()
             sys.stderr = mock_stderr
             # pylint: disable=protected-access,no-self-use
             support._log("Test Log Message")

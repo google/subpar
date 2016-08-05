@@ -17,6 +17,7 @@
 """Command line interface to subpar compiler"""
 
 import argparse
+import io
 import os
 import re
 
@@ -60,12 +61,14 @@ def make_command_line_parser():
 def parse_imports_from_stub(stub_filename):
     """Parse the imports attribute from a py_binary() stub.
 
+    We assume the stub is utf-8 encoded.
+
     TODO(b/29227737): Remove this once we can access imports from skylark.
 
     Returns a list of relative paths
     """
     regex = re.compile(r'''^  python_imports = '([^']*)'$''')
-    with open(stub_filename, 'rb') as stub_file:
+    with io.open(stub_filename, 'rt', encoding='utf8') as stub_file:
         for line in stub_file:
             match = regex.match(line)
             if match:

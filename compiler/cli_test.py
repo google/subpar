@@ -36,11 +36,11 @@ class CliTest(unittest.TestCase):
 
     def test_parse_imports_from_stub(self):
         valid_cases = [
-            ["  python_imports = ''",
+            [b"  python_imports = ''",
              []],
-            ["  python_imports = 'myworkspace/spam/eggs'",
+            [b"  python_imports = 'myworkspace/spam/eggs'",
              ['myworkspace/spam/eggs']],
-            ["  python_imports = 'myworkspace/spam/eggs:otherworkspace'",
+            [b"  python_imports = 'myworkspace/spam/eggs:otherworkspace'",
              ['myworkspace/spam/eggs', 'otherworkspace']],
         ]
         for content, expected in valid_cases:
@@ -49,9 +49,9 @@ class CliTest(unittest.TestCase):
                 self.assertEqual(actual, expected)
 
         invalid_cases = [
-            '',
-            '\n\n',
-            '  python_imports=',
+            b'',
+            b'\n\n',
+            b'  python_imports=',
             ]
         for content in invalid_cases:
             with test_utils.temp_file(content) as stub_file:
