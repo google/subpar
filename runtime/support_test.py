@@ -27,9 +27,9 @@ class SupportTest(unittest.TestCase):
             mock_stderr = io.StringIO()
             sys.stderr = mock_stderr
             # pylint: disable=protected-access,no-self-use
-            support._log("Test Log Message")
+            support._log('Test Log Message')
             if sys.flags.verbose:
-                expected = "Test Log Message\n"
+                expected = 'Test Log Message\n'
             else:
                 expected = ""
             self.assertEqual(mock_stderr.getvalue(), expected)

@@ -30,7 +30,7 @@ def main():
     print('In b.py main()')
     # Test resource extraction
     b_dat = pkgutil.get_data('subpar.tests.package_b', 'b_dat.txt')
-    assert (b_dat == b"Dummy data file for b.py\n"), b_dat
+    assert (b_dat == b'Dummy data file for b.py\n'), b_dat
 
 
 if __name__ == '__main__':
