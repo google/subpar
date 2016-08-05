@@ -122,6 +122,36 @@ class PythonArchiveTest(unittest.TestCase):
         # t closed but not deleted
         self.assertTrue(os.path.exists(t.name))
 
+    def test_generate_boilerplate(self):
+        par = self._construct()
+        boilerplate = par.generate_boilerplate()
+        self.assertIn('Boilerplate', boilerplate)
+
+    def test_generate_main(self):
+        par = self._construct()
+        boilerplate = 'BOILERPLATE\n'
+        cases = [
+            # Insert at beginning
+            (b'spam = eggs\n',
+             b'BOILERPLATE\nspam = eggs\n'),
+            # Insert in the middle
+            (b'# a comment\nspam = eggs\n',
+             b'# a comment\nBOILERPLATE\nspam = eggs\n'),
+            # Insert after the end
+            (b'# a comment\n',
+             b'# a comment\nBOILERPLATE\n'),
+            # Blank lines
+            (b'\n \t\n',
+             b'\n \t\nBOILERPLATE\n'),
+            # Future import
+            (b'from __future__ import print_function\n',
+             b'from __future__ import print_function\nBOILERPLATE\n'),
+        ]
+        for main_content, expected in cases:
+            with test_utils.temp_file(main_content) as main_file:
+                actual = par.generate_main(main_file.name, boilerplate)
+            self.assertEqual(expected, actual.content)
+
     def test_scan_manifest(self):
         par = self._construct()
         manifest = {'foo.py': '/something/foo.py', 'bar.py': None,}

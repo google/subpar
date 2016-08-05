@@ -72,6 +72,17 @@ par_binary(
     srcs_version = "PY2AND3",
 )
 
+[par_binary(
+    name = "package_g/g_%s" % version,
+    srcs = ["package_g/g.py"],
+    default_python_version = version,
+    main = "package_g/g.py",
+    srcs_version = "PY2AND3",
+) for version in [
+    "PY2",
+    "PY3",
+]]
+
 # Test targets
 [sh_test(
     name = "%s_%s" % (name, version),
@@ -92,6 +103,7 @@ par_binary(
     ("import_root_test", ":package_d/d", "/package_d/d"),
     ("external_workspace_test", ":package_e/e", "/package_e/e"),
     ("version_test", ":package_f/f", "/package_f/f"),
+    ("main_boilerplate_test", ":package_g/g", "/package_g/g"),
 ] for version in [
     "PY2",
     "PY3",
