@@ -1,5 +1,3 @@
-#!/usr/bin/python2
-
 # Copyright 2016 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,37 +24,69 @@ class CliTest(unittest.TestCase):
     def test_make_command_line_parser(self):
         parser = cli.make_command_line_parser()
         args = parser.parse_args([
-            '--imports_from_stub=quux',
             '--manifest_file=bar',
             '--manifest_root=bazz',
             '--outputpar=baz',
+            '--stub_file=quux',
             'foo',
         ])
         self.assertEqual(args.manifest_file, 'bar')
 
-    def test_parse_imports_from_stub(self):
+    def test_stub(self):
         valid_cases = [
-            ["  python_imports = ''",
-             []],
-            ["  python_imports = 'myworkspace/spam/eggs'",
-             ['myworkspace/spam/eggs']],
-            ["  python_imports = 'myworkspace/spam/eggs:otherworkspace'",
-             ['myworkspace/spam/eggs', 'otherworkspace']],
+            # Empty list
+            [b"""
+  python_imports = ''
+PYTHON_BINARY = '/usr/bin/python'
+""",
+             ([], '/usr/bin/python')],
+            # Single import
+            [b"""
+  python_imports = 'myworkspace/spam/eggs'
+PYTHON_BINARY = '/usr/bin/python'
+""",
+             (['myworkspace/spam/eggs'], '/usr/bin/python')],
+            # Multiple imports
+            [b"""
+  python_imports = 'myworkspace/spam/eggs:otherworkspace'
+PYTHON_BINARY = '/usr/bin/python'
+""",
+             (['myworkspace/spam/eggs', 'otherworkspace'], '/usr/bin/python')],
+            # Relative path to interpreter
+            [b"""
+  python_imports = ''
+PYTHON_BINARY = 'mydir/python'
+""",
+             ([], 'mydir/python')],
+            # Search for interpreter on $PATH
+            [b"""
+  python_imports = ''
+PYTHON_BINARY = 'python'
+""",
+             ([], '/usr/bin/env python')],
         ]
         for content, expected in valid_cases:
             with test_utils.temp_file(content) as stub_file:
-                actual = cli.parse_imports_from_stub(stub_file.name)
+                actual = cli.parse_stub(stub_file.name)
                 self.assertEqual(actual, expected)
 
         invalid_cases = [
-            '',
-            '\n\n',
-            '  python_imports=',
+            b'',
+            b'\n\n',
+            # No interpreter
+            b"  python_imports = 'myworkspace/spam/eggs'",
+            # No imports
+            b"PYTHON_BINARY = 'python'\n",
+            # Interpreter is label
+            b"""
+  python_imports = ''
+PYTHON_BINARY = '//mypackage:python'
+""",
             ]
         for content in invalid_cases:
             with test_utils.temp_file(content) as stub_file:
                 with self.assertRaises(error.Error):
-                    cli.parse_imports_from_stub(stub_file.name)
+                    cli.parse_stub(stub_file.name)
 
 
 if __name__ == '__main__':

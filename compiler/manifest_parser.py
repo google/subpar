@@ -17,7 +17,10 @@
 The format is described in
 https://github.com/bazelbuild/bazel/blob/master/src/main/tools/build-runfiles.cc
 
+We assume manifest files are utf-8 encoded.
+
 """
+import io
 
 from subpar.compiler import error
 
@@ -41,7 +44,7 @@ def parse(manifest_filename):
 
     """
     manifest = {}
-    with open(manifest_filename, 'rb') as f:
+    with io.open(manifest_filename, 'rt', encoding='utf8') as f:
         lineno = 0
         for line in f:
             # Split line into fields

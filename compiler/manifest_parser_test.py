@@ -1,5 +1,3 @@
-#!/usr/bin/python2
-
 # Copyright 2016 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,11 +24,11 @@ class ManifestTest(unittest.TestCase):
     def test_parse_manifest_valid(self):
         valid = (
             # 1 field, no trailing space
-            'ccccc/__init__.py\n' +
+            b'ccccc/__init__.py\n' +
             # 1 field, trailing space
-            'ccccc/ddddd/__init__.py \n' +
+            b'ccccc/ddddd/__init__.py \n' +
             # 2 fields
-            'ccccc/ddddd/eeeee /code/rrrrr/ccccc/ddddd/eeeee\n'
+            b'ccccc/ddddd/eeeee /code/rrrrr/ccccc/ddddd/eeeee\n'
         )
         expected = {
             'ccccc/__init__.py': None,
@@ -44,13 +42,13 @@ class ManifestTest(unittest.TestCase):
     def test_parse_manifest_invalid(self):
         invalids = [
             # Repeated name
-            ('ccccc/__init__.py \n' +
-             'ccccc/ddddd/__init__.py \n' +
-             'ccccc/__init__.py \n'),
+            (b'ccccc/__init__.py \n' +
+             b'ccccc/ddddd/__init__.py \n' +
+             b'ccccc/__init__.py \n'),
             # Too many spaces
-            'ccccc/__init__.py foo bar\n',
+            b'ccccc/__init__.py foo bar\n',
             # Not enough spaces
-            '\n\n',
+            b'\n\n',
         ]
         for invalid in invalids:
             with test_utils.temp_file(invalid) as t:

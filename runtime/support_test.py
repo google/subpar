@@ -1,5 +1,3 @@
-#!/usr/bin/python2
-
 # Copyright 2016 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import StringIO
+import io
 import sys
 import unittest
 
@@ -26,12 +24,12 @@ class SupportTest(unittest.TestCase):
     def test_log(self):
         old_stderr = sys.stderr
         try:
-            mock_stderr = StringIO.StringIO()
+            mock_stderr = io.StringIO()
             sys.stderr = mock_stderr
             # pylint: disable=protected-access,no-self-use
-            support._log("Test Log Message")
+            support._log('Test Log Message')
             if sys.flags.verbose:
-                expected = "Test Log Message\n"
+                expected = 'Test Log Message\n'
             else:
                 expected = ""
             self.assertEqual(mock_stderr.getvalue(), expected)

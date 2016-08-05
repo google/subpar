@@ -21,12 +21,7 @@ import tempfile
 
 def get_test_tmpdir():
     """Get default test temp dir."""
-    tmpdir = os.environ.get('TEST_TMPDIR', '')
-    if not tmpdir:
-        tempfile.gettempdir()
-        testname = os.path.splitext(os.path.basename(sys.argv[0]))[0]
-        if testname:
-            tmpdir = os.path.join(tmpdir, testname)
+    tmpdir = os.environ.get('TEST_TMPDIR', tempfile.gettempdir())
     return tmpdir
 
 
@@ -35,8 +30,9 @@ def mkdtemp():
     return tempfile.mkdtemp(dir=get_test_tmpdir())
 
 
-def temp_file(contents, suffix='', tmpdir=None):
+def temp_file(contents, suffix=''):
     """Create a self-deleting temp file with the given content"""
+    tmpdir = get_test_tmpdir()
     t = tempfile.NamedTemporaryFile(suffix=suffix, dir=tmpdir)
     t.write(contents)
     t.flush()

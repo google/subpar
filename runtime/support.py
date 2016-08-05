@@ -41,7 +41,7 @@ def _log(msg):
     """Print a debugging message in the same format as python -vv output"""
     if sys.flags.verbose:
         sys.stderr.write(msg)
-        sys.stderr.write("\n")
+        sys.stderr.write('\n')
 
 
 def _find_archive():
@@ -66,7 +66,7 @@ def setup(import_roots=None):
     # Add third-party library entries to sys.path
     archive_path = _find_archive()
     if not archive_path:
-        warnings.warn("Failed to initialize .par file runtime support",
+        warnings.warn('Failed to initialize .par file runtime support',
                       ImportWarning)
         return
 

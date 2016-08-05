@@ -1,5 +1,3 @@
-#!/usr/bin/python2
-
 # Copyright 2016 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,11 +35,12 @@ class PythonArchiveTest(unittest.TestCase):
         if not os.path.exists(self.input_dir):
             os.makedirs(self.input_dir)
         self.manifest_filename = os.path.join(self.input_dir, 'manifest')
-        self.main_file = test_utils.temp_file('print("Hello World!")',
+        self.main_file = test_utils.temp_file(b'print("Hello World!")',
                                               suffix='.py')
+        manifest_content = '%s %s\n' % (
+            os.path.basename(self.main_file.name), self.main_file.name)
         self.manifest_file = test_utils.temp_file(
-            '%s %s\n' %
-            (os.path.basename(self.main_file.name), self.main_file.name))
+            manifest_content.encode('utf8'))
         self.output_dir = os.path.join(self.tmpdir, 'output')
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
@@ -66,19 +65,19 @@ class PythonArchiveTest(unittest.TestCase):
             par.create()
 
     def test_create_manifest_parse_error(self):
-        with test_utils.temp_file('blah blah blah\n') as manifest_file:
+        with test_utils.temp_file(b'blah blah blah\n') as manifest_file:
             par = self._construct(manifest_filename=manifest_file.name)
             with self.assertRaises(error.Error):
                 par.create()
 
     def test_create_manifest_contains___main___py(self):
-        with test_utils.temp_file('__main__.py\n') as manifest_file:
+        with test_utils.temp_file(b'__main__.py\n') as manifest_file:
             par = self._construct(manifest_filename=manifest_file.name)
             with self.assertRaises(error.Error):
                 par.create()
 
     def test_create_source_file_not_found(self):
-        with test_utils.temp_file('foo.py doesnotexist.py\n') as manifest_file:
+        with test_utils.temp_file(b'foo.py doesnotexist.py\n') as manifest_file:
             par = self._construct(manifest_filename=manifest_file.name)
             with self.assertRaises(OSError):
                 par.create()
@@ -114,7 +113,7 @@ class PythonArchiveTest(unittest.TestCase):
         par.create()
         self.assertTrue(os.path.exists(self.output_filename))
         self.assertEqual(
-            subprocess.check_output([self.output_filename]), 'Hello World!\n')
+            subprocess.check_output([self.output_filename]), b'Hello World!\n')
 
     def test_create_temp_parfile(self):
         par = self._construct()
@@ -146,7 +145,7 @@ class PythonArchiveTest(unittest.TestCase):
     def test_scan_manifest_has_collision(self):
         par = self._construct()
         # Support file already present in manifest, use manifest version
-        with test_utils.temp_file('blah blah\n') as shadowing_support_file:
+        with test_utils.temp_file(b'blah blah\n') as shadowing_support_file:
             manifest = {
                 'foo.py': '/something/foo.py',
                 'subpar/runtime/support.py': shadowing_support_file.name,
@@ -189,7 +188,7 @@ class ModuleTest(unittest.TestCase):
         tmpdir = test_utils.mkdtemp()
         filename = os.path.join(tmpdir, 'afile')
         with open(filename, 'wb') as f:
-            f.write('dontcare')
+            f.write(b'dontcare')
         # File exists
         self.assertTrue(os.path.exists(filename))
         python_archive.remove_if_present(filename)
@@ -198,6 +197,8 @@ class ModuleTest(unittest.TestCase):
         python_archive.remove_if_present(filename)
         self.assertFalse(os.path.exists(filename))
 
+    def test_fetch_support_file(self):
+        resource = python_archive.fetch_support_file('__init__.py')
 
 if __name__ == '__main__':
     unittest.main()
