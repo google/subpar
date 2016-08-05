@@ -71,9 +71,9 @@ def _parfile_impl(ctx):
 
     # Assemble command line for .par compiler
     args = [
-        '--imports_from_stub', stub_file,
         '--manifest_file', sources_file.path,
         '--outputpar', ctx.outputs.executable.path,
+        '--stub_file', stub_file,
         main_py_file.path,
     ]
     ctx.action(
@@ -82,7 +82,7 @@ def _parfile_impl(ctx):
         progress_message='Building par file %s' % ctx.label,
         executable=ctx.executable._compiler,
         arguments=args,
-        mnemonic="PythonCompile",
+        mnemonic='PythonCompile',
     )
 
     # .par file itself has no runfiles and no providers
@@ -109,6 +109,7 @@ parfile = rule(
             single_file = True,
         ),
         "imports": attr.string_list(default = []),
+        "default_python_version": attr.string(mandatory = True),
         "_compiler": attr.label(
             default = Label("//compiler"),
             executable = True,
@@ -152,4 +153,6 @@ def par_binary(name, **kwargs):
     native.py_binary(name=name, **kwargs)
     main = kwargs.get('main', name + '.py')
     imports = kwargs.get('imports')
-    parfile(name=name + '.par', src=name, main=main, imports=imports)
+    default_python_version = kwargs.get('default_python_version', 'PY2')
+    parfile(name=name + '.par', src=name, main=main, imports=imports,
+            default_python_version=default_python_version)
