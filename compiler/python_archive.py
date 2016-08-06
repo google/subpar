@@ -32,6 +32,7 @@ import io
 import logging
 import os
 import pkgutil
+import re
 import sys
 import tempfile
 import zipfile
@@ -41,7 +42,7 @@ from subpar.compiler import manifest_parser
 from subpar.compiler import stored_resource
 
 # Boilerplate code added to __main__.py
-_main_template = """\
+_boilerplate_template = """\
 # Boilerplate added by subpar/compiler/python_archive.py
 from %(runtime_package)s import support as _
 _.setup(import_roots=%(import_roots)s)
@@ -127,25 +128,51 @@ class PythonArchive(object):
         output_dir = os.path.dirname(self.output_filename)
         return tempfile.NamedTemporaryFile(dir=output_dir, delete=False)
 
-    def generate_main(self):
+    def generate_boilerplate(self):
+        """Generate boilerplate to be insert into __main__.py
+
+        We don't know the encoding of the main source file, so
+        require that the template be pure ascii, which we can safely
+        insert.
+
+        Returns:
+            A string containing only ascii characters
+        """
+        boilerplate_contents = _boilerplate_template % {
+            'runtime_package': _runtime_package,
+            'import_roots': str(self.import_roots),
+        }
+        return boilerplate_contents.encode('ascii').decode('ascii')
+
+    def generate_main(self, main_filename, boilerplate_contents):
         """Generate the contents of the __main__.py file
 
         We take the module that is specified as the main entry point,
-        and prepend some boilerplate to invoke import helper code.
+        and insert some boilerplate to invoke import helper code.
 
         Returns:
             A StoredResource
         """
-        template_contents = _main_template % {
-            'runtime_package': _runtime_package,
-            'import_roots': str(self.import_roots),
-        }
-        with open(self.main_filename, 'rb') as main_file:
-            main_contents = main_file.read()
-        # We don't know the encoding of the main source file, so
-        # require that the template be pure ascii, which we can safely
-        # prepend.
-        contents = template_contents.encode('ascii') + main_contents
+        # Read main source file, in unknown encoding.  We use latin-1
+        # here, but any single-byte encoding that doesn't raise errors
+        # would work.
+        output_lines = []
+        with io.open(main_filename, 'rt', encoding='latin-1') as main_file:
+            output_lines = list(main_file)
+
+        # Find a good place to insert the boilerplate, which is the
+        # first line that is not a comment, blank line, or future
+        # import.
+        skip_regex = re.compile('''(#.*)|(\\s+)|(from\\s+__future__\\s+import)''')
+        idx = 0
+        while idx < len(output_lines):
+            if not skip_regex.match(output_lines[idx]):
+                break
+            idx += 1
+
+        # Insert boilerplate (might be beginning, middle or end)
+        output_lines[idx:idx] = [boilerplate_contents]
+        contents = ''.join(output_lines).encode('latin-1')
         return stored_resource.StoredContent('__main__.py', contents)
 
     def scan_manifest(self, manifest):
@@ -177,7 +204,8 @@ class PythonArchive(object):
                 ('Configuration error for [%s]: Manifest file included a '
                  'file named __main__.py, which is not allowed') %
                 self.manifest_filename)
-        stored_resources['__main__.py'] = self.generate_main()
+        stored_resources['__main__.py'] = self.generate_main(
+            self.main_filename, self.generate_boilerplate())
 
         # Add an __init__.py for each parent package of the support files
         for stored_filename in _runtime_init_files:
