@@ -7,6 +7,7 @@ load("//:subpar.bzl", "parfile")
 py_library(
     name = "compiler_lib",
     srcs = [
+        "__init__.py",
         "cli.py",
         "error.py",
         "manifest_parser.py",
@@ -15,7 +16,7 @@ py_library(
         "//:__init__.py",
     ],
     data = [
-        "//runtime:support.py",
+        "//runtime:support",
     ],
     srcs_version = "PY2AND3",
 )

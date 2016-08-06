@@ -3,6 +3,7 @@ package(default_visibility = ["//compiler:__pkg__"])
 py_library(
     name = "support",
     srcs = [
+        "__init__.py",
         "support.py",
         "//:__init__.py",
     ],
