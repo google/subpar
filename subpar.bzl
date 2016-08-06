@@ -134,6 +134,12 @@ Args:
 
     See [py_binary.imports](http://www.bazel.io/docs/be/python.html#py_binary.imports)
 
+  default_python_version: A string specifying the default Python major version to use when building this par file.
+
+    See [py_binary.default_python_version](http://www.bazel.io/docs/be/python.html#py_binary.default_python_version)
+
+  compiler: Internal use only.
+
 TODO(b/27502830): A directory foo.par.runfiles is also created. This
 is a bug, don't use or depend on it.
 
