@@ -80,7 +80,7 @@ def _parfile_impl(ctx):
         inputs=inputs + extra_inputs,
         outputs=[ctx.outputs.executable],
         progress_message='Building par file %s' % ctx.label,
-        executable=ctx.executable._compiler,
+        executable=ctx.executable.compiler,
         arguments=args,
         mnemonic='PythonCompile',
     )
@@ -110,8 +110,8 @@ parfile = rule(
         ),
         "imports": attr.string_list(default = []),
         "default_python_version": attr.string(mandatory = True),
-        "_compiler": attr.label(
-            default = Label("//compiler"),
+        "compiler": attr.label(
+            default = Label("//compiler:compiler.par"),
             executable = True,
         ),
     },

@@ -2,6 +2,8 @@
 
 package(default_visibility = ["//visibility:public"])
 
+load("//:subpar.bzl", "parfile")
+
 py_library(
     name = "compiler_lib",
     srcs = [
@@ -33,13 +35,13 @@ py_binary(
     deps = [":compiler_lib"],
 )
 
-py_binary(
-    name = "compiler3",
-    srcs = ["compiler.py"],
-    default_python_version = "PY3",
+# Compile the compiler while carefully avoiding a circular dependency
+parfile(
+    name = "compiler.par",
+    src = ":compiler",
+    compiler = ":compiler",
+    default_python_version = "PY2",
     main = "compiler.py",
-    srcs_version = "PY2AND3",
-    deps = [":compiler_lib"],
 )
 
 [py_test(
