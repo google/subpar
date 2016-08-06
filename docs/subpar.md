@@ -91,14 +91,15 @@ is a bug, don't use or depend on it.
       <td><code>compiler</code></td>
       <td>
         <p><code><a href="http://bazel.io/docs/build-ref.html#labels">Label</a>; Optional</code></p>
-        
+        <p>Internal use only.</p>
       </td>
     </tr>
     <tr id="parfile.default_python_version">
       <td><code>default_python_version</code></td>
       <td>
         <p><code>String; Required</code></p>
-        
+        <p>A string specifying the default Python major version to use when building this par file.</p>
+<p>See <a href="http://www.bazel.io/docs/be/python.html#py_binary.default_python_version">py_binary.default_python_version</a></p>
       </td>
     </tr>
     <tr id="parfile.imports">
