@@ -101,6 +101,13 @@ class PythonArchive(object):
         logging.debug('Compiling file list from [%s]', self.manifest_filename)
         manifest = manifest_parser.parse(self.manifest_filename)
 
+	# Extend the list of import roots to include workspace roots
+	all_import_roots = set(self.import_roots)
+	for path in manifest.iterkeys():
+	    all_import_roots.add(path.split(os.sep)[0])
+	self.import_roots = list(all_import_roots)
+
+
         # Validate manifest and add various extra files to the list
         stored_resources = self.scan_manifest(manifest)
 
