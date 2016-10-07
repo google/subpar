@@ -107,7 +107,6 @@ class PythonArchive(object):
 	    all_import_roots.add(path.split(os.sep)[0])
 	self.import_roots = list(all_import_roots)
 
-
         # Validate manifest and add various extra files to the list
         stored_resources = self.scan_manifest(manifest)
 
