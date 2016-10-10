@@ -10,7 +10,7 @@ addons:
       - sourceline: 'deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8'
         key_url: 'https://storage.googleapis.com/bazel-apt/doc/apt-key.pub.gpg'
     packages:
-      - bazel=0.3.1
+      - bazel
 script:
   - bazel build //...
   - bazel test //...
