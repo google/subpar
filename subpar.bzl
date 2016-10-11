@@ -113,6 +113,7 @@ parfile = rule(
         "compiler": attr.label(
             default = Label("//compiler:compiler.par"),
             executable = True,
+            cfg = "host",
         ),
     },
     executable = True,
