@@ -84,26 +84,42 @@ par_binary(
 ]]
 
 # Test targets
-[sh_test(
-    name = "%s_%s" % (name, version),
-    size = "small",
-    srcs = ["test_harness.sh"],
-    args = [
-        "tests%s_%s.par" % (path, version),
-        "tests%s_%s_filelist.txt" % (path, version),
-    ],
-    data = [
-        "//tests%s_%s.par" % (label, version),
-        "//tests%s_%s_filelist.txt" % (label, version),
-    ],
+[(
+    # Run test without .par file as a control
+    sh_test(
+        name = "%s_%s_nopar_test" % (name, version),
+        size = "small",
+        srcs = ["test_harness.sh"],
+        args = [
+            "tests%s_%s" % (path, version),
+        ],
+        data = [
+            "//tests%s_%s" % (label, version),
+        ],
+    ),
+    # Test .par file with harness
+    sh_test(
+        name = "%s_%s_test" % (name, version),
+        size = "small",
+        srcs = ["test_harness.sh"],
+        args = [
+            "--par",
+            "tests%s_%s.par" % (path, version),
+            "tests%s_%s_filelist.txt" % (path, version),
+        ],
+        data = [
+            "//tests%s_%s.par" % (label, version),
+            "//tests%s_%s_filelist.txt" % (label, version),
+        ],
+    ),
 ) for name, label, path in [
-    ("basic_test", "/package_a:a", "/package_a/a"),
-    ("direct_dependency_test", "/package_b:b", "/package_b/b"),
-    ("indirect_dependency_test", ":package_c/c", "/package_c/c"),
-    ("import_root_test", ":package_d/d", "/package_d/d"),
-    ("external_workspace_test", ":package_e/e", "/package_e/e"),
-    ("version_test", ":package_f/f", "/package_f/f"),
-    ("main_boilerplate_test", ":package_g/g", "/package_g/g"),
+    ("basic", "/package_a:a", "/package_a/a"),
+    ("direct_dependency", "/package_b:b", "/package_b/b"),
+    ("indirect_dependency", ":package_c/c", "/package_c/c"),
+    ("import_root", ":package_d/d", "/package_d/d"),
+    ("external_workspace", ":package_e/e", "/package_e/e"),
+    ("version", ":package_f/f", "/package_f/f"),
+    ("main_boilerplate", ":package_g/g", "/package_g/g"),
 ] for version in [
     "PY2",
     "PY3",

@@ -27,19 +27,30 @@ function die { echo "$*" >&1; exit 1; }
 [ -n "$TEST_TMPDIR" ] \
   || die 'FATAL: $TEST_TMPDIR not set in '$0' (run this test under Bazel)'
 
-ZIPFILE="$1"
-FILELIST="$2"
-TMP_ZIPFILE="$TEST_TMPDIR"/$(basename "$ZIPFILE")
+if [ "$1" == "--par" ]; then
+  PAR=1
+  EXECUTABLE="$2"
+  FILELIST="$3"
+else
+  PAR=0
+  EXECUTABLE="$1"
+  FILELIST=""
+fi
+TMP_EXECUTABLE="$TEST_TMPDIR"/$(basename "$EXECUTABLE")
 
 # Compare list of files in zipfile with expected list
-diff \
-  <(unzip -l "$ZIPFILE" | awk '{print $NF}' | head -n -2 | tail -n +4) \
-  "$FILELIST" \
-  || die 'FATAL: zipfile contents do not match expected'
+if [ "$PAR" -eq 1 ]; then
+  diff \
+    <(unzip -l "$EXECUTABLE" | awk '{print $NF}' | head -n -2 | tail -n +4) \
+    "$FILELIST" \
+    || die 'FATAL: zipfile contents do not match expected'
+fi
 
 # Execute .par file in place
-"$ZIPFILE"
+"$EXECUTABLE"
 
 # Copy .par file to tmp dir so that .runfiles is not present and run again
-cp "$ZIPFILE" "$TMP_ZIPFILE"
-"$TMP_ZIPFILE"
+if [ "$PAR" -eq 1 ]; then
+  cp "$EXECUTABLE" "$TMP_EXECUTABLE"
+  "$TMP_EXECUTABLE"
+fi
