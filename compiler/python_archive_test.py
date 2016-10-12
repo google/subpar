@@ -83,30 +83,22 @@ class PythonArchiveTest(unittest.TestCase):
                 par.create()
 
     def test_create_permission_denied_creating_temp_file(self):
-        st = os.stat(self.output_dir)
-        try:
-            os.chmod(self.output_dir, stat.S_IREAD)
-            with self.assertRaises(OSError):
-                par = self._construct()
-                par.create()
-        finally:
-            os.chmod(self.output_dir, st.st_mode)
+        os.rmdir(self.output_dir)
+        with self.assertRaises(OSError):
+            par = self._construct()
+            par.create()
 
     def test_create_permission_denied_creating_final_file(self):
-        st = os.stat(self.output_dir)
-        try:
-            par = self._construct()
-            saved = par.write_zip_data
+        par = self._construct()
+        saved = par.write_zip_data
 
-            def mock(*args):
-                os.chmod(self.output_dir, stat.S_IREAD)
-                return saved(*args)
+        def mock(*args):
+            par.output_filename = "/nonexistent" + par.output_filename
+            return saved(*args)
 
-            par.write_zip_data = mock
-            with self.assertRaises(OSError):
-                par.create()
-        finally:
-            os.chmod(self.output_dir, st.st_mode)
+        par.write_zip_data = mock
+        with self.assertRaises(OSError):
+            par.create()
 
     def test_create(self):
         par = self._construct()

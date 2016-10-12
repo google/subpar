@@ -59,7 +59,9 @@ else:
     try:
         # pylint: disable=import-self
         from . import a as a1
-        raise AssertionError('This shouldn\'t have worked: %r' % a1)
+        # This was fixed in Python 3.5
+        if (sys.version_info.major, sys.version_info.minor) < (3,5):
+            raise AssertionError('This shouldn\'t have worked: %r' % a1)
     except ImportError as e:
         assert 'cannot import name' in str(e), e
     try:
@@ -67,7 +69,7 @@ else:
         import subpar.tests.package_a.a as a2
         raise AssertionError('This shouldn\'t have worked: %r' % a2)
     except AttributeError as e:
-        assert "'module' object has no attribute 'a'" in str(e), e
+        assert "has no attribute 'a'" in str(e), e
 
 
 def main():
