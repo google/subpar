@@ -70,7 +70,8 @@ def setup(import_roots=None):
                       ImportWarning)
         return
 
-    for import_root in (import_roots or []):
+    # We try to match to order of Bazel's stub
+    for import_root in reversed(import_roots or []):
         new_path = os.path.join(archive_path, import_root)
         _log('# adding %s to sys.path' % new_path)
-        sys.path.append(new_path)
+        sys.path.insert(1, new_path)
