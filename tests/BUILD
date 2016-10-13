@@ -6,6 +6,10 @@
 
 package(default_visibility = ["//tests:__subpackages__"])
 
+exports_files([
+    "__init__.py",
+])
+
 load("//:subpar.bzl", "par_binary")
 
 # Utility targets

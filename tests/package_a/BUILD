@@ -13,6 +13,9 @@ exports_files([
     name = "a_%s" % version,
     srcs = [
         "a.py",
+        "//:__init__.py",
+        "//tests:__init__.py",
+        "//tests/package_a:__init__.py",
     ],
     data = ["a_dat.txt"],
     default_python_version = version,
