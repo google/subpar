@@ -11,7 +11,12 @@ exports_files([
 
 [par_binary(
     name = "b_%s" % version,
-    srcs = ["b.py"],
+    srcs = [
+        "b.py",
+        "//:__init__.py",
+        "//tests:__init__.py",
+        "//tests/package_b:__init__.py",
+    ],
     data = ["b_dat.txt"],
     default_python_version = version,
     main = "b.py",
