@@ -42,9 +42,9 @@ class SupportTest(unittest.TestCase):
         self.assertNotEqual(path, None)
 
     def test_setup(self):
-        support.setup(import_roots=['some_root'])
-        last_entry = sys.path[-1]
-        self.assertTrue(last_entry.endswith('subpar/runtime/some_root'))
+        support.setup(import_roots=['some_root', 'another_root'])
+        self.assertTrue(sys.path[1].endswith('subpar/runtime/some_root'), sys.path)
+        self.assertTrue(sys.path[2].endswith('subpar/runtime/another_root'), sys.path)
 
 
 if __name__ == '__main__':
