@@ -87,6 +87,22 @@ par_binary(
     "PY3",
 ]]
 
+[par_binary(
+    name = "package_shadow/main_%s" % version,
+    srcs = [
+        "package_shadow/code/__init__.py",
+        "package_shadow/code/shadowed.py",
+        "package_shadow/main.py",
+    ],
+    default_python_version = version,
+    imports = ["package_shadow"],
+    main = "package_shadow/main.py",
+    srcs_version = "PY2AND3",
+) for version in [
+    "PY2",
+    "PY3",
+]]
+
 # Test targets
 [(
     # Run test without .par file as a control
@@ -124,6 +140,7 @@ par_binary(
     ("external_workspace", ":package_e/e", "/package_e/e"),
     ("version", ":package_f/f", "/package_f/f"),
     ("main_boilerplate", ":package_g/g", "/package_g/g"),
+    ("shadow", ":package_shadow/main", "/package_shadow/main"),
 ] for version in [
     "PY2",
     "PY3",
