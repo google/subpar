@@ -61,6 +61,8 @@ def parse_stub(stub_filename):
 
     Returns (list of relative paths, path to Python interpreter)
     """
+
+    # Find the list of import roots
     imports_regex = re.compile(r'''^  python_imports = '([^']*)'$''')
     interpreter_regex = re.compile(r'''^PYTHON_BINARY = '([^']*)'$''')
     import_roots = None
@@ -78,7 +80,8 @@ def parse_stub(stub_filename):
     if import_roots is None or not interpreter:
         raise error.Error('Failed to parse stub file [%s]' % stub_filename)
 
-    # Match the search logic in stub_template.txt
+    # Find the Python interpreter, matching the search logic in
+    # stub_template.txt
     if interpreter.startswith('//'):
         raise error.Error('Python interpreter must not be a label [%s]' %
                           stub_filename)
