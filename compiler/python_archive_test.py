@@ -116,8 +116,9 @@ class PythonArchiveTest(unittest.TestCase):
 
     def test_generate_boilerplate(self):
         par = self._construct()
-        boilerplate = par.generate_boilerplate()
+        boilerplate = par.generate_boilerplate(['foo', 'bar'])
         self.assertIn('Boilerplate', boilerplate)
+        self.assertIn("import_roots=['foo', 'bar']", boilerplate)
 
     def test_generate_main(self):
         par = self._construct()
@@ -150,6 +151,12 @@ class PythonArchiveTest(unittest.TestCase):
         resources = par.scan_manifest(manifest)
         self.assertIn('foo.py', resources)
         self.assertIn('bar.py', resources)
+
+    def test_scan_manifest_adds_workspace_roots(self):
+        par = self._construct()
+        manifest = {'foo': None, 'bar/': None, 'baz/quux': None,}
+        resources = par.scan_manifest(manifest)
+        self.assertIn(b"import_roots=['bar', 'baz']", resources['__main__.py'].content)
 
     def test_scan_manifest_adds_main(self):
         par = self._construct()

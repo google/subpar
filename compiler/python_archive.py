@@ -128,7 +128,7 @@ class PythonArchive(object):
         output_dir = os.path.dirname(self.output_filename)
         return tempfile.NamedTemporaryFile(dir=output_dir, delete=False)
 
-    def generate_boilerplate(self):
+    def generate_boilerplate(self, import_roots):
         """Generate boilerplate to be insert into __main__.py
 
         We don't know the encoding of the main source file, so
@@ -140,7 +140,7 @@ class PythonArchive(object):
         """
         boilerplate_contents = _boilerplate_template % {
             'runtime_package': _runtime_package,
-            'import_roots': str(self.import_roots),
+            'import_roots': str(import_roots),
         }
         return boilerplate_contents.encode('ascii').decode('ascii')
 
@@ -181,9 +181,16 @@ class PythonArchive(object):
         Returns:
             A dict of store_filename to StoredResource
         """
-        stored_resources = {}
+
+        # Extend the list of import roots to include workspace roots
+        all_import_roots = set(self.import_roots)
+        for stored_path in manifest.keys():
+            if '/' in stored_path:  # Zip file paths use / on all platforms
+                all_import_roots.add(stored_path.split('/', 1)[0])
+        import_roots = sorted(all_import_roots)
 
         # Include some files that every .par file needs at runtime
+        stored_resources = {}
         for support_file in _runtime_support_files:
             resource = fetch_support_file(support_file)
             stored_filename = resource.stored_filename
@@ -205,7 +212,7 @@ class PythonArchive(object):
                  'file named __main__.py, which is not allowed') %
                 self.manifest_filename)
         stored_resources['__main__.py'] = self.generate_main(
-            self.main_filename, self.generate_boilerplate())
+            self.main_filename, self.generate_boilerplate(import_roots))
 
         # Add an __init__.py for each parent package of the support files
         for stored_filename in _runtime_init_files:

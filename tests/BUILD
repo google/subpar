@@ -103,6 +103,20 @@ par_binary(
     "PY3",
 ]]
 
+[par_binary(
+    name = "package_import_roots/import_roots_%s" % version,
+    srcs = [
+        "package_import_roots/import_roots.py",
+    ],
+    default_python_version = version,
+    imports = ["package_import_roots"],
+    main = "package_import_roots/import_roots.py",
+    srcs_version = "PY2AND3",
+) for version in [
+    "PY2",
+    "PY3",
+]]
+
 # Test targets
 [(
     # Run test without .par file as a control
@@ -141,6 +155,7 @@ par_binary(
     ("version", ":package_f/f", "/package_f/f"),
     ("main_boilerplate", ":package_g/g", "/package_g/g"),
     ("shadow", ":package_shadow/main", "/package_shadow/main"),
+    ("import_roots", ":package_import_roots/import_roots", "/package_import_roots/import_roots"),
 ] for version in [
     "PY2",
     "PY3",
