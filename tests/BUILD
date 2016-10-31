@@ -59,6 +59,9 @@ sh_library(
     default_python_version = version,
     main = "package_e/e.py",
     srcs_version = "PY2AND3",
+    deps = [
+        "@test_workspace//:package_external_lib/external_lib",
+    ],
 ) for version in [
     "PY2",
     "PY3",

@@ -18,9 +18,14 @@ Test dependencies on files in external repositories
 
 """
 
+# This will fail with ImportError if __init__.py files are missing or
+# in incorrect places.
+from test_workspace.package_external_lib import external_lib
+
 
 def main():
     print('In e.py main()')
+    external_lib.lib()
 
 
 if __name__ == '__main__':

@@ -12,15 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-package(default_visibility = ["//visibility:public"])
+"""Integration test library for Subpar.
 
-exports_files(["data_file.txt"])
+This is used in tests that need to have a dependency in an external
+workspace.
 
-py_library(
-    name = "package_external_lib/external_lib",
-    srcs = [
-        # This intentionally DOES NOT have __init__.py listed
-        "package_external_lib/external_lib.py",
-    ],
-    srcs_version = "PY2AND3",
-)
+"""
+
+def lib():
+    print('In external_lib.py lib()')
