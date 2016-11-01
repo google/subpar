@@ -92,10 +92,15 @@ def _prepend_workspace(path, ctx):
     """Given a path, prepend the workspace name as the parent directory"""
     # It feels like there should be an easier, less fragile way.
     if path.startswith('../'):
-        # External workspace
+        # External workspace, for example
+        # '../protobuf/python/google/protobuf/any_pb2.py'
         stored_path = path[len('../'):]
+    elif path.startswith('external/'):
+        # External workspace, for example
+        # 'external/protobuf/python/__init__.py'
+        stored_path = path[len('external/'):]
     else:
-        # Main workspace
+        # Main workspace, for example 'mypackage/main.py'
         stored_path = ctx.workspace_name + '/' + path
     return stored_path
 
