@@ -166,5 +166,6 @@ def par_binary(name, **kwargs):
     main = kwargs.get('main', name + '.py')
     imports = kwargs.get('imports')
     default_python_version = kwargs.get('default_python_version', 'PY2')
+    visibility=kwargs.get('visibility')
     parfile(name=name + '.par', src=name, main=main, imports=imports,
-            default_python_version=default_python_version)
+            default_python_version=default_python_version, visibility=visibility)
