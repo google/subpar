@@ -158,9 +158,13 @@ def par_binary(name, **kwargs):
     builds a self-contained, single-file executable for the
     application, with a .par file extension.
 
+    The `name` attribute shouldn't include the `.par` file extension,
+    it's added automatically.  So, for a rule like
+    `par_binary(name="myname")`, build the file `myname.par` by doing
+    `bazel build //mypackage:myname.par`
+
     See [py_binary](http://www.bazel.io/docs/be/python.html#py_binary)
     for arguments and usage.
-
     """
     native.py_binary(name=name, **kwargs)
     main = kwargs.get('main', name + '.py')

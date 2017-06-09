@@ -13,7 +13,8 @@ designed to work well with [Bazel](http://bazel.io).
 git_repository(
     name = "subpar",
     remote = "https://github.com/google/subpar",
-    commit = "HEAD",
+    tag = "1.0",
+    sha256 = "Fill in sha256 here",
 )
 ```
 
@@ -26,9 +27,15 @@ load("@subpar//:subpar.bzl", "par_binary")
 
 ## Usage
 
-`par_binary()` is a drop-in replacement for `py_binary()` that also builds a
-self-contained, single-file executable for the application, with a `.par` file
-extension.
+`par_binary()` is a drop-in replacement for `py_binary()` in your BUILD files
+that also builds a self-contained, single-file executable for the application,
+with a `.par` file extension.
+
+To build the `.par` file associated with a `par_binary(name=myname)` rule, do
+
+``` shell
+bazel build //my/package:myname.par
+```
 
 The .par file is created alongside the python stub and .runfiles
 directories that py_binary() creates, but is independent of them.
@@ -44,13 +51,23 @@ directly without needing the .runfiles directory.  The body of the
 
 ## Example
 
+Given a `BUILD` file with the following:
+
 ```python
+load("@subpar//:subpar.bzl", "par_binary")
+
 par_binary(
     name = 'foo',
     srcs = ['foo.py', 'bar.py'],
     deps = ['//baz:some_py_lib'],
     data = ['quux.dat'],
 )
+```
+
+Run the following build command:
+
+``` shell
+bazel build //package:foo.par
 ```
 
 This results in the following files being created by bazel build:
