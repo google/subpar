@@ -13,8 +13,7 @@ designed to work well with [Bazel](http://bazel.io).
 git_repository(
     name = "subpar",
     remote = "https://github.com/google/subpar",
-    tag = "1.0",
-    sha256 = "Fill in sha256 here",
+    tag = "1.0.0",
 )
 ```
 
