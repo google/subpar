@@ -12,13 +12,17 @@ skylark_library(
 )
 
 skylark_doc(
-    name = "docs-html",
+    name = "docs-md",
     format = "markdown",
+    overview = True,
+    site_root = ".",
     deps = ["subpar-rules"],
 )
 
 skylark_doc(
-    name = "docs-md",
+    name = "docs-html",
     format = "html",
+    overview = True,
+    site_root = ".",
     deps = ["subpar-rules"],
 )

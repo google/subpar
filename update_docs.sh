@@ -19,4 +19,3 @@ set -euo pipefail
 bazel build //docs/...
 unzip -d docs/ -o bazel-bin/docs/docs-md-skydoc.zip
 unzip -d docs/ -o bazel-bin/docs/docs-html-skydoc.zip
-perl -i -pe 's|href="/css/main.css"|href="css/main.css"|' docs/*.html
