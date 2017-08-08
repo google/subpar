@@ -104,27 +104,28 @@ def _prepend_workspace(path, ctx):
         stored_path = ctx.workspace_name + '/' + path
     return stored_path
 
+parfile_attrs = {
+    "src": attr.label(mandatory = True),
+    "main": attr.label(
+        mandatory = True,
+        allow_files = True,
+        single_file = True,
+    ),
+    "imports": attr.string_list(default = []),
+    "default_python_version": attr.string(mandatory = True),
+    "compiler": attr.label(
+        default = Label("//compiler:compiler.par"),
+        executable = True,
+        cfg = "host",
+    ),
+}
+
 # Rule to create a parfile given a py_binary() as input
 parfile = rule(
-    attrs = {
-        "src": attr.label(mandatory = True),
-        "main": attr.label(
-            mandatory = True,
-            allow_files = True,
-            single_file = True,
-        ),
-        "imports": attr.string_list(default = []),
-        "default_python_version": attr.string(mandatory = True),
-        "compiler": attr.label(
-            default = Label("//compiler:compiler.par"),
-            executable = True,
-            cfg = "host",
-        ),
-    },
+    attrs = parfile_attrs,
     executable = True,
     implementation = _parfile_impl,
 )
-
 """A self-contained, single-file Python program, with a .par file extension.
 
 You probably want to use par_binary() instead of this.
@@ -151,6 +152,17 @@ is a bug, don't use or depend on it.
 
 """
 
+parfile_test = rule(
+    attrs = parfile_attrs,
+    executable = True,
+    implementation = _parfile_impl,
+    test = True,
+)
+"""Identical to par_binary, but the rule is marked as being a test.
+
+You probably want to use par_test() instead of this.
+"""
+
 def par_binary(name, **kwargs):
     """An executable Python program.
 
@@ -170,6 +182,24 @@ def par_binary(name, **kwargs):
     main = kwargs.get('main', name + '.py')
     imports = kwargs.get('imports')
     default_python_version = kwargs.get('default_python_version', 'PY2')
-    visibility=kwargs.get('visibility')
+    visibility = kwargs.get('visibility')
+    testonly = kwargs.get('testonly', False)
     parfile(name=name + '.par', src=name, main=main, imports=imports,
-            default_python_version=default_python_version, visibility=visibility)
+            default_python_version=default_python_version, visibility=visibility,
+            testonly=testonly)
+
+def par_test(name, **kwargs):
+    """An executable Python test.
+
+    Just like par_binary, but for py_test instead of py_binary.  Useful if you
+    specifically need to test a module's behaviour when used in a .par binary.
+    """
+    native.py_test(name=name, **kwargs)
+    main = kwargs.get('main', name + '.py')
+    imports = kwargs.get('imports')
+    default_python_version = kwargs.get('default_python_version', 'PY2')
+    visibility = kwargs.get('visibility')
+    parfile_test(
+        name=name + '.par', src=name, main=main, imports=imports,
+        default_python_version=default_python_version, visibility=visibility,
+    )
