@@ -6,8 +6,8 @@ load("@io_bazel_skydoc//skylark:skylark.bzl", "skylark_doc", "skylark_library")
 skylark_library(
     name = "subpar-rules",
     srcs = [
-        "//:debug.bzl",
-        "//:subpar.bzl",
+        "@subpar//:debug.bzl",
+        "@subpar//:subpar.bzl",
     ],
 )
 
