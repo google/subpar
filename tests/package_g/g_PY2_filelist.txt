@@ -4,5 +4,5 @@ subpar/runtime/__init__.py
 subpar/runtime/support.py
 subpar/tests/__init__.py
 subpar/tests/package_g/__init__.py
+subpar/tests/package_g/g
 subpar/tests/package_g/g.py
-subpar/tests/package_g/g_PY2

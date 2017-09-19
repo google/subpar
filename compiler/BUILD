@@ -46,10 +46,9 @@ parfile(
 )
 
 [py_test(
-    name = "%s_%s_test" % (src_name, version),
+    name = "%s_test" % (src_name,),
     size = "small",
     srcs = [src_name + "_test.py"],
-    default_python_version = version,
     main = src_name + "_test.py",
     srcs_version = "PY2AND3",
     deps = [
@@ -61,7 +60,4 @@ parfile(
     "manifest_parser",
     "python_archive",
     "stored_resource",
-] for version in [
-    "PY2",
-    "PY3",
 ]]
