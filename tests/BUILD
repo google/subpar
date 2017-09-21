@@ -14,13 +14,6 @@ load("//:subpar.bzl", "par_binary")
 
 # Configurations
 config_setting(
-    name = "subpar_test_python_version_2",
-    define_values = {
-        "subpar_test_python_version": "2",
-    },
-)
-
-config_setting(
     name = "subpar_test_python_version_3",
     define_values = {
         "subpar_test_python_version": "3",

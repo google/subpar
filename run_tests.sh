@@ -43,7 +43,7 @@ fi
 # Run tests
 if [ -n "${PYTHON2}" ]; then
   echo "Found Python 2 at ${PYTHON2}"
-  bazel test --define subpar_test_python_version=2 --python_path="${PYTHON2}" --test_output=errors //...
+  bazel test --python_path="${PYTHON2}" --test_output=errors //...
 fi
 
 if [ -n "${PYTHON3}" ]; then
