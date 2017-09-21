@@ -9,8 +9,8 @@ exports_files([
     "b_PY3_filelist.txt",
 ])
 
-[par_binary(
-    name = "b_%s" % version,
+par_binary(
+    name = "b",
     srcs = [
         "b.py",
         "//:__init__.py",
@@ -18,14 +18,10 @@ exports_files([
         "//tests/package_b:__init__.py",
     ],
     data = ["b_dat.txt"],
-    default_python_version = version,
     main = "b.py",
     srcs_version = "PY2AND3",
     deps = [
-        "//tests/package_a:a_%s" % version,
+        "//tests/package_a:a",
         "//tests/package_a:a_lib",
     ],
-) for version in [
-    "PY2",
-    "PY3",
-]]
+)

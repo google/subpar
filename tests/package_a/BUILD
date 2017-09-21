@@ -9,8 +9,8 @@ exports_files([
     "a_PY3_filelist.txt",
 ])
 
-[par_binary(
-    name = "a_%s" % version,
+par_binary(
+    name = "a",
     srcs = [
         "a.py",
         "//:__init__.py",
@@ -18,13 +18,9 @@ exports_files([
         "//tests/package_a:__init__.py",
     ],
     data = ["a_dat.txt"],
-    default_python_version = version,
     main = "a.py",
     srcs_version = "PY2AND3",
-) for version in [
-    "PY2",
-    "PY3",
-]]
+)
 
 py_library(
     name = "a_lib",

@@ -4,5 +4,5 @@ subpar/runtime/__init__.py
 subpar/runtime/support.py
 subpar/tests/__init__.py
 subpar/tests/package_import_roots/__init__.py
+subpar/tests/package_import_roots/import_roots
 subpar/tests/package_import_roots/import_roots.py
-subpar/tests/package_import_roots/import_roots_PY2

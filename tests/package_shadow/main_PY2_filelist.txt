@@ -6,5 +6,5 @@ subpar/tests/__init__.py
 subpar/tests/package_shadow/__init__.py
 subpar/tests/package_shadow/code/__init__.py
 subpar/tests/package_shadow/code/shadowed.py
+subpar/tests/package_shadow/main
 subpar/tests/package_shadow/main.py
-subpar/tests/package_shadow/main_PY2

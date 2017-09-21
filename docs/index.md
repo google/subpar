@@ -52,6 +52,17 @@
 
       </td>
     </tr>
+    <tr>
+      <td>
+        <a href="./subpar.html#parfile_test">
+          <code>parfile_test</code>
+        </a>
+      </td>
+      <td>
+        <p>Identical to par_binary, but the rule is marked as being a test.</p>
+
+      </td>
+    </tr>
   </tbody>
 </table>
 <h3>Macros</h3>
@@ -69,6 +80,17 @@
       </td>
       <td>
         <p>An executable Python program.</p>
+
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="./subpar.html#par_test">
+          <code>par_test</code>
+        </a>
+      </td>
+      <td>
+        <p>An executable Python test.</p>
 
       </td>
     </tr>

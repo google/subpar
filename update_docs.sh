@@ -16,6 +16,21 @@
 
 set -euo pipefail
 
-bazel build //docs/...
-unzip -d docs/ -o bazel-bin/docs/docs-md-skydoc.zip
-unzip -d docs/ -o bazel-bin/docs/docs-html-skydoc.zip
+# docs/ is a separate Bazel workspace from the rest of subpar
+cd docs
+bazel build //...
+
+# Copy generated files back into source tree
+unzip -d . -o bazel-bin/docs-md-skydoc.zip
+unzip -d . -o bazel-bin/docs-html-skydoc.zip
+
+# Skydoc puts the generated files in a subdir because of the separate
+# workspaces.  Move the files back to docs/ and rewrite paths.
+mv external/subpar/* .
+rmdir external/subpar
+rmdir external
+perl -i -pe 's{./external/subpar/}{./}g' *.md *.html
+
+# The symlinks in docs/bazel-* confuse Bazel, so we delete them after
+# we're done.
+bazel clean
