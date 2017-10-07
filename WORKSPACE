@@ -3,7 +3,7 @@ workspace(name = "subpar")
 # Used by integration tests
 local_repository(
     name = "test_workspace",
-    path = __workspace_dir__ + "/tests/test_workspace",
+    path = "tests/test_workspace",
 )
 
 # Not actually referenced anywhere, but must be marked as a separate
