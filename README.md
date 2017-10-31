@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/google/subpar.svg?branch=master)](https://travis-ci.org/google/subpar)
 
 Subpar is a utility for creating self-contained python executables.  It is
-designed to work well with [Bazel](http://bazel.io).
+designed to work well with [Bazel](https://bazel.build/).
 
 ## Setup
 
@@ -39,7 +39,7 @@ bazel build //my/package:myname.par
 The .par file is created alongside the python stub and .runfiles
 directories that py_binary() creates, but is independent of them.
 It can be copied to other directories or machines, and executed
-directly without needing the .runfiles directory.  The body of the
+directly without needing the .runfiles directory. The body of the
 .par file contains all the srcs, deps, and data files listed.
 
 ## Limitations:
