@@ -112,10 +112,10 @@ par_binary(
         size = "small",
         srcs = ["test_harness.sh"],
         args = [
-            "tests%s" % path,
+            path,
         ],
         data = [
-            "//tests%s" % label,
+            label,
         ],
     ),
     # Test .par file with harness
@@ -125,26 +125,35 @@ par_binary(
         srcs = ["test_harness.sh"],
         args = [
             "--par",
-            "tests%s.par" % path,
+            "%s.par" % path,
         ] + select({
-            "subpar_test_python_version_3": ["tests%s_PY3_filelist.txt" % path],
-            "//conditions:default": ["tests%s_PY2_filelist.txt" % path],
+            "subpar_test_python_version_3": ["%s_PY3_filelist.txt" % path],
+            "//conditions:default": ["%s_PY2_filelist.txt" % path],
         }),
         data = [
-            "//tests%s.par" % label,
+            "%s.par" % label,
         ] + select({
-            "subpar_test_python_version_3": ["//tests%s_PY3_filelist.txt" % label],
-            "//conditions:default": ["//tests%s_PY2_filelist.txt" % label],
+            "subpar_test_python_version_3": ["%s_PY3_filelist.txt" % label],
+            "//conditions:default": ["%s_PY2_filelist.txt" % label],
         }),
     ),
 ) for name, label, path in [
-    ("basic", "/package_a:a", "/package_a/a"),
-    ("direct_dependency", "/package_b:b", "/package_b/b"),
-    ("indirect_dependency", ":package_c/c", "/package_c/c"),
-    ("import_root", ":package_d/d", "/package_d/d"),
-    ("external_workspace", ":package_e/e", "/package_e/e"),
-    ("version", ":package_f/f", "/package_f/f"),
-    ("main_boilerplate", ":package_g/g", "/package_g/g"),
-    ("shadow", ":package_shadow/main", "/package_shadow/main"),
-    ("import_roots", ":package_import_roots/import_roots", "/package_import_roots/import_roots"),
+    ("basic", "//tests/package_a:a", "tests/package_a/a"),
+    ("direct_dependency", "//tests/package_b:b", "tests/package_b/b"),
+    ("indirect_dependency", "//tests:package_c/c", "tests/package_c/c"),
+    ("import_root", "//tests:package_d/d", "tests/package_d/d"),
+    ("external_workspace", "//tests:package_e/e", "tests/package_e/e"),
+    ("version", "//tests:package_f/f", "tests/package_f/f"),
+    ("main_boilerplate", "//tests:package_g/g", "tests/package_g/g"),
+    ("shadow", "//tests:package_shadow/main", "tests/package_shadow/main"),
+    (
+        "import_roots",
+        "//tests:package_import_roots/import_roots",
+        "tests/package_import_roots/import_roots",
+    ),
+    (
+        "dir_shadowing",
+        "//test_dir_shadowing:test_dir_shadowing_main",
+        "test_dir_shadowing/test_dir_shadowing_main",
+    ),
 ]]
