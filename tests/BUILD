@@ -83,6 +83,16 @@ par_binary(
 )
 
 par_binary(
+    name = "package_import_roots/import_roots",
+    srcs = [
+        "package_import_roots/import_roots.py",
+    ],
+    imports = ["package_import_roots"],
+    main = "package_import_roots/import_roots.py",
+    srcs_version = "PY2AND3",
+)
+
+par_binary(
     name = "package_shadow/main",
     srcs = [
         "package_shadow/code/__init__.py",
@@ -91,16 +101,6 @@ par_binary(
     ],
     imports = ["package_shadow"],
     main = "package_shadow/main.py",
-    srcs_version = "PY2AND3",
-)
-
-par_binary(
-    name = "package_import_roots/import_roots",
-    srcs = [
-        "package_import_roots/import_roots.py",
-    ],
-    imports = ["package_import_roots"],
-    main = "package_import_roots/import_roots.py",
     srcs_version = "PY2AND3",
 )
 
@@ -139,11 +139,15 @@ par_binary(
     ),
 ) for name, label, path in [
     ("basic", "//tests/package_a:a", "tests/package_a/a"),
+    (
+        "dir_shadowing",
+        "//test_dir_shadowing:test_dir_shadowing_main",
+        "test_dir_shadowing/test_dir_shadowing_main",
+    ),
     ("direct_dependency", "//tests/package_b:b", "tests/package_b/b"),
-    ("indirect_dependency", "//tests:package_c/c", "tests/package_c/c"),
-    ("import_root", "//tests:package_d/d", "tests/package_d/d"),
     ("external_workspace", "//tests:package_e/e", "tests/package_e/e"),
-    ("version", "//tests:package_f/f", "tests/package_f/f"),
+    ("import_root", "//tests:package_d/d", "tests/package_d/d"),
+    ("indirect_dependency", "//tests:package_c/c", "tests/package_c/c"),
     ("main_boilerplate", "//tests:package_g/g", "tests/package_g/g"),
     ("shadow", "//tests:package_shadow/main", "tests/package_shadow/main"),
     (
@@ -151,9 +155,5 @@ par_binary(
         "//tests:package_import_roots/import_roots",
         "tests/package_import_roots/import_roots",
     ),
-    (
-        "dir_shadowing",
-        "//test_dir_shadowing:test_dir_shadowing_main",
-        "test_dir_shadowing/test_dir_shadowing_main",
-    ),
+    ("version", "//tests:package_f/f", "tests/package_f/f"),
 ]]
