@@ -104,6 +104,19 @@ par_binary(
     srcs_version = "PY2AND3",
 )
 
+par_binary(
+    name = "package_pkg_resources/main",
+    srcs = [
+        "package_pkg_resources/main.py",
+    ],
+    data = [
+        "@pypi__portpicker_1_2_0//:files",
+        "@pypi__yapf_0_19_0//:files",
+    ],
+    main = "package_pkg_resources/main.py",
+    srcs_version = "PY2AND3",
+)
+
 # Test targets
 [(
     # Run test without .par file as a control
@@ -154,6 +167,7 @@ par_binary(
     ),
     ("indirect_dependency", "//tests:package_c/c", "tests/package_c/c"),
     ("main_boilerplate", "//tests:package_g/g", "tests/package_g/g"),
+    ("pkg_resources", "//tests:package_pkg_resources/main", "tests/package_pkg_resources/main"),
     ("shadow", "//tests:package_shadow/main", "tests/package_shadow/main"),
     ("version", "//tests:package_f/f", "tests/package_f/f"),
 ]]
