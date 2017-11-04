@@ -147,13 +147,13 @@ par_binary(
     ("direct_dependency", "//tests/package_b:b", "tests/package_b/b"),
     ("external_workspace", "//tests:package_e/e", "tests/package_e/e"),
     ("import_root", "//tests:package_d/d", "tests/package_d/d"),
-    ("indirect_dependency", "//tests:package_c/c", "tests/package_c/c"),
-    ("main_boilerplate", "//tests:package_g/g", "tests/package_g/g"),
-    ("shadow", "//tests:package_shadow/main", "tests/package_shadow/main"),
     (
         "import_roots",
         "//tests:package_import_roots/import_roots",
         "tests/package_import_roots/import_roots",
     ),
+    ("indirect_dependency", "//tests:package_c/c", "tests/package_c/c"),
+    ("main_boilerplate", "//tests:package_g/g", "tests/package_g/g"),
+    ("shadow", "//tests:package_shadow/main", "tests/package_shadow/main"),
     ("version", "//tests:package_f/f", "tests/package_f/f"),
 ]]
