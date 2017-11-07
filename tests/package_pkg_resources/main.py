@@ -26,7 +26,7 @@ def main():
         print('Skipping test, pkg_resources module is not available')
         return
 
-    ws = pkg_resources.WorkingSet()
+    ws = pkg_resources.working_set
 
     # Informational for debugging
     distributions = list(ws)

@@ -33,8 +33,10 @@ TODO: Strategy: Do nothing if archive doesn't have any C extension modules
 """
 
 import os
+import pkgutil
 import sys
 import warnings
+import zipimport
 
 
 def _log(msg):
@@ -61,10 +63,21 @@ def _find_archive():
     return archive_path
 
 
-def _setup_pkg_resources():
+def _setup_pkg_resources(pkg_resources_name):
+    """Setup hooks into the `pkg_resources` module
+
+    This enables the pkg_resources module to find metadata from wheels
+    that have been included in this .par file.
+
+    The functions and classes here are scoped to this function, since
+    we might have multitple pkg_resources modules, or none.
+    """
+
     try:
-        import pkg_resources
-        import zipimport
+        __import__(pkg_resources_name)
+        pkg_resources = sys.modules.get(pkg_resources_name)
+        if pkg_resources is None:
+            return
     except ImportError:
         # Skip setup
         return
@@ -125,17 +138,20 @@ def _setup_pkg_resources():
             yield dist
         return
 
-
     # This overwrites the existing registered finder.
-    #
-    # Note that this also doesn't update the default WorkingSet created by
-    # pkg_resources when it is imported, since there is no public
-    # interface to do so that doesn't also have a "Don't use this"
-    # warning.
     pkg_resources.register_finder(zipimport.zipimporter,
                                   find_eggs_and_dist_info_in_zip)
 
-
+    # Note that the default WorkingSet has already been created, and
+    # there is no public interface to easily refresh/reload it that
+    # doesn't also have a "Don't use this" warning.  So we manually
+    # add just the entries we know about to the existing WorkingSet.
+    for entry in sys.path:
+        importer = pkgutil.get_importer(entry)
+        if isinstance(importer, zipimport.zipimporter):
+            for dist in find_dist_info_in_zip(importer, entry, only=True):
+                pkg_resources.working_set.add(dist, entry, insert=False,
+                                              replace=False)
 
 
 def setup(import_roots=None):
@@ -154,4 +170,5 @@ def setup(import_roots=None):
         sys.path.insert(1, new_path)
 
     # Add hook for package metadata
-    _setup_pkg_resources()
+    _setup_pkg_resources('pkg_resources')
+    _setup_pkg_resources('pip._vendor.pkg_resources')
