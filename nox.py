@@ -1,10 +1,10 @@
-# Copyright 2016 Google Inc. All Rights Reserved.
+# Copyright 2017 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#      http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,13 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Integration test library for Subpar.
-
-This is used in tests that need to have a dependency in an external
-workspace.
-
-"""
+import nox
 
 
-def lib():
-    print('In external_lib.py lib()')
+@nox.session
+def lint(session):
+    session.interpreter = 'python3'  # So it understands Python3 syntax
+    session.install('flake8', 'flake8-import-order')
+    session.run(
+        'flake8',
+        '--application-import-names',
+        '--import-order-style=google',
+        '--exclude=.git,.nox,bazel-*',
+        '--max-line-length=80',
+        '.',
+    )

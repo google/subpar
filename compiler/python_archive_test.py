@@ -13,14 +13,13 @@
 # limitations under the License.
 
 import os
-import stat
 import subprocess
 import unittest
 import zipfile
 
 from subpar.compiler import error
-from subpar.compiler import stored_resource
 from subpar.compiler import python_archive
+from subpar.compiler import stored_resource
 from subpar.compiler import test_utils
 
 
@@ -147,16 +146,17 @@ class PythonArchiveTest(unittest.TestCase):
 
     def test_scan_manifest(self):
         par = self._construct()
-        manifest = {'foo.py': '/something/foo.py', 'bar.py': None,}
+        manifest = {'foo.py': '/something/foo.py', 'bar.py': None}
         resources = par.scan_manifest(manifest)
         self.assertIn('foo.py', resources)
         self.assertIn('bar.py', resources)
 
     def test_scan_manifest_adds_workspace_roots(self):
         par = self._construct()
-        manifest = {'foo': None, 'bar/': None, 'baz/quux': None,}
+        manifest = {'foo': None, 'bar/': None, 'baz/quux': None}
         resources = par.scan_manifest(manifest)
-        self.assertIn(b"import_roots=['bar', 'baz']", resources['__main__.py'].content)
+        self.assertIn(b"import_roots=['bar', 'baz']",
+                      resources['__main__.py'].content)
 
     def test_scan_manifest_adds_main(self):
         par = self._construct()
@@ -197,7 +197,7 @@ class PythonArchiveTest(unittest.TestCase):
         with par.create_temp_parfile() as t:
             resource = stored_resource.StoredFile(
                 os.path.basename(self.main_file.name), self.main_file.name)
-            resources = {resource.stored_filename: resource,}
+            resources = {resource.stored_filename: resource}
             par.write_zip_data(t, resources)
         self.assertTrue(zipfile.is_zipfile(t.name))
 
@@ -227,7 +227,9 @@ class ModuleTest(unittest.TestCase):
         self.assertFalse(os.path.exists(filename))
 
     def test_fetch_support_file(self):
-        resource = python_archive.fetch_support_file('__init__.py')
+        resource = python_archive.fetch_support_file('support.py')
+        self.assertEqual(resource.stored_filename, 'subpar/runtime/support.py')
+
 
 if __name__ == '__main__':
     unittest.main()

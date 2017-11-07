@@ -48,9 +48,11 @@ sake.
 
 """
 
+
 def main():
     # This import only works if sys.path contains the 'subpar' directory
     import tests.package_import_roots
+    assert tests.package_import_roots is not None
     print('In import_roots.py main()')
 
 

@@ -23,9 +23,8 @@ import sys
 
 # Import some things in various ways
 import subpar
-# pylint: disable=reimported
 from subpar import tests as tests1
-import subpar.tests as tests2
+import subpar.tests as tests2    # noqa
 assert tests1 is tests2, (tests1, tests2)
 
 # Test importing __main__ under its package qualified name.
@@ -60,7 +59,7 @@ else:
         # pylint: disable=import-self
         from . import a as a1
         # This was fixed in Python 3.5
-        if (sys.version_info.major, sys.version_info.minor) < (3,5):
+        if (sys.version_info.major, sys.version_info.minor) < (3, 5):
             raise AssertionError('This shouldn\'t have worked: %r' % a1)
     except ImportError as e:
         assert 'cannot import name' in str(e), e
