@@ -21,6 +21,7 @@ import pkgutil
 
 from test_dir_shadowing import dir_shadowing_lib
 
+
 def main():
     print('In dir_shadowing_main.py main()')
     dir_shadowing_lib.lib()
