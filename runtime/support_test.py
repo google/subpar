@@ -21,7 +21,7 @@ from subpar.runtime import support
 
 class SupportTest(unittest.TestCase):
 
-    def test_log(self):
+    def test__log(self):
         old_stderr = sys.stderr
         try:
             mock_stderr = io.StringIO()
@@ -36,17 +36,35 @@ class SupportTest(unittest.TestCase):
         finally:
             sys.stderr = old_stderr
 
-    def test_find_archive(self):
+    def test__find_archive(self):
         # pylint: disable=protected-access
         path = support._find_archive()
         self.assertNotEqual(path, None)
 
     def test_setup(self):
-        support.setup(import_roots=['some_root', 'another_root'])
-        self.assertTrue(sys.path[1].endswith('subpar/runtime/some_root'),
-                        sys.path)
-        self.assertTrue(sys.path[2].endswith('subpar/runtime/another_root'),
-                        sys.path)
+        # `import pip` can cause arbitrary sys.path changes,
+        # especially if using the Debian `python-pip` package or
+        # similar.  Get that lunacy out of the way before starting
+        # test
+        try:
+            import pip  # noqa
+        except ImportError:
+            pass
+
+        old_sys_path = sys.path
+        try:
+            mock_sys_path = list(sys.path)
+            sys.path = mock_sys_path
+            support.setup(import_roots=['some_root', 'another_root'])
+        finally:
+            sys.path = old_sys_path
+        self.assertTrue(mock_sys_path[1].endswith('subpar/runtime/some_root'),
+                        mock_sys_path)
+        self.assertTrue(
+            mock_sys_path[2].endswith('subpar/runtime/another_root'),
+            mock_sys_path)
+        self.assertEqual(mock_sys_path[0], sys.path[0])
+        self.assertEqual(mock_sys_path[3:], sys.path[1:])
 
 
 if __name__ == '__main__':
