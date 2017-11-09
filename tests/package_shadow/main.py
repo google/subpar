@@ -20,7 +20,8 @@ Test a user package with the same name as a builtin module
 # This will fail with the following error
 #     ImportError: No module named shadowed
 # if we erroneously import the builtin 'code' module
-import code.shadowed
+import code.shadowed  # noqa
+
 
 def main():
     print('In shadow_test main()')

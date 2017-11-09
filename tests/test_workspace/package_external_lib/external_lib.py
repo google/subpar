@@ -19,5 +19,6 @@ workspace.
 
 """
 
+
 def lib():
     print('In external_lib.py lib()')

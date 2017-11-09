@@ -56,7 +56,7 @@ _compiler_package = _subpar_package + '.compiler'
 _runtime_package = _subpar_package + '.runtime'
 
 # List of files from the runtime package to include in every .par file
-_runtime_support_files = ['support.py',]
+_runtime_support_files = ['support.py']
 
 # List of zero-length files to include in every .par file
 _runtime_init_files = [
@@ -76,7 +76,7 @@ class PythonArchive(object):
                  manifest_filename,
                  manifest_root,
                  output_filename,
-                ):
+                 ):
         self.main_filename = main_filename
 
         self.import_roots = import_roots
@@ -163,7 +163,8 @@ class PythonArchive(object):
         # Find a good place to insert the boilerplate, which is the
         # first line that is not a comment, blank line, or future
         # import.
-        skip_regex = re.compile('''(#.*)|(\\s+)|(from\\s+__future__\\s+import)''')
+        skip_regex = re.compile(
+            '''(#.*)|(\\s+)|(from\\s+__future__\\s+import)''')
         idx = 0
         while idx < len(output_lines):
             if not skip_regex.match(output_lines[idx]):

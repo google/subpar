@@ -43,8 +43,10 @@ class SupportTest(unittest.TestCase):
 
     def test_setup(self):
         support.setup(import_roots=['some_root', 'another_root'])
-        self.assertTrue(sys.path[1].endswith('subpar/runtime/some_root'), sys.path)
-        self.assertTrue(sys.path[2].endswith('subpar/runtime/another_root'), sys.path)
+        self.assertTrue(sys.path[1].endswith('subpar/runtime/some_root'),
+                        sys.path)
+        self.assertTrue(sys.path[2].endswith('subpar/runtime/another_root'),
+                        sys.path)
 
 
 if __name__ == '__main__':

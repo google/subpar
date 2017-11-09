@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#      http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,23 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Integration test library for Subpar
-
-Regression test for https://github.com/google/subpar/issues/47
-"""
-
-import pkgutil
-
-from test_dir_shadowing import dir_shadowing_lib
+import nox
 
 
-def main():
-    print('In dir_shadowing_main.py main()')
-    dir_shadowing_lib.lib()
-    # Test resource extraction
-    dat = pkgutil.get_data('test_dir_shadowing', 'dir_shadowing_main_dat.txt')
-    assert (dat == b'Dummy data file for dir_shadowing_main.py\n'), dat
-
-
-if __name__ == '__main__':
-    main()
+@nox.session
+def lint(session):
+    # Flake8 under Python2 dies with a UnicodeDecodeError:
+    # https://gitlab.com/pycqa/flake8/issues/324
+    session.interpreter = 'python3'
+    session.install('flake8', 'flake8-import-order')
+    session.run(
+        'flake8',
+        '.',
+    )

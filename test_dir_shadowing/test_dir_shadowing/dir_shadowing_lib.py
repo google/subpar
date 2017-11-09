@@ -19,8 +19,10 @@ Regression test for https://github.com/google/subpar/issues/47
 
 import pkgutil
 
+
 def lib():
     print('In dir_shadowing_lib.py lib()')
     # Test resource extraction
-    lib_dat = pkgutil.get_data('test_dir_shadowing', 'dir_shadowing_lib_dat.txt')
+    lib_dat = pkgutil.get_data('test_dir_shadowing',
+                               'dir_shadowing_lib_dat.txt')
     assert (lib_dat == b'Dummy data file for dir_shadowing_lib.py\n'), lib_dat

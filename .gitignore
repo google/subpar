@@ -2,5 +2,8 @@
 /bazel-*
 docs/bazel-*
 
+# Nox virtualenvs
+.nox
+
 # Python
 *.pyc
