@@ -47,7 +47,7 @@ class SupportTest(unittest.TestCase):
         # similar.  Get that lunacy out of the way before starting
         # test
         try:
-            import pip
+            import pip  # noqa
         except ImportError:
             pass
 
@@ -60,8 +60,9 @@ class SupportTest(unittest.TestCase):
             sys.path = old_sys_path
         self.assertTrue(mock_sys_path[1].endswith('subpar/runtime/some_root'),
                         mock_sys_path)
-        self.assertTrue(mock_sys_path[2].endswith('subpar/runtime/another_root'),
-                        mock_sys_path)
+        self.assertTrue(
+            mock_sys_path[2].endswith('subpar/runtime/another_root'),
+            mock_sys_path)
         self.assertEqual(mock_sys_path[0], sys.path[0])
         self.assertEqual(mock_sys_path[3:], sys.path[1:])
 

@@ -18,6 +18,7 @@ Test that pkg_resources correctly identifies distribution packages
 inside a .par file.
 """
 
+
 def main():
     print('In pkg_resources test main()')
     try:
@@ -38,6 +39,7 @@ def main():
     for spec in ['portpicker==1.2.0', 'yapf==0.19.0']:
         dist = ws.find(pkg_resources.Requirement.parse(spec))
         assert dist, (spec, distributions)
+
 
 if __name__ == '__main__':
     main()

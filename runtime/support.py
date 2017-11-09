@@ -106,7 +106,6 @@ def _setup_pkg_resources(pkg_resources_name):
             result = self._index().get(zipinfo_name, ())
             return list(result)
 
-
     def find_dist_info_in_zip(importer, path_item, only=False):
         """Find dist-info style metadata in zip files.
 
@@ -117,12 +116,13 @@ def _setup_pkg_resources(pkg_resources_name):
         for subitem in metadata.resource_listdir('/'):
             if subitem.lower().endswith('.dist-info'):
                 subpath = os.path.join(path_item, subitem)
-                submeta = pkg_resources.EggMetadata(zipimport.zipimporter(subpath))
+                submeta = pkg_resources.EggMetadata(
+                    zipimport.zipimporter(subpath))
                 submeta.egg_info = subpath
-                dist = pkg_resources.Distribution.from_location(path_item, subitem, submeta)
+                dist = pkg_resources.Distribution.from_location(
+                    path_item, subitem, submeta)
                 yield dist
         return
-
 
     def find_eggs_and_dist_info_in_zip(importer, path_item, only=False):
         """Chain together our finder and the standard pkg_resources finder
