@@ -1,0 +1,10 @@
+[flake8]
+application-import-name=subpar
+exclude =
+  __pycache__,
+  .git,
+  .nox,
+  *.pyc,
+  bazel-*
+import-order-style=google
+max-line-length=80

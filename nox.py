@@ -17,13 +17,11 @@ import nox
 
 @nox.session
 def lint(session):
-    session.interpreter = 'python3'  # So it understands Python3 syntax
+    # Flake8 under Python2 dies with a UnicodeDecodeError:
+    # https://gitlab.com/pycqa/flake8/issues/324
+    session.interpreter = 'python3'
     session.install('flake8', 'flake8-import-order')
     session.run(
         'flake8',
-        '--application-import-names',
-        '--import-order-style=google',
-        '--exclude=.git,.nox,bazel-*',
-        '--max-line-length=80',
         '.',
     )
