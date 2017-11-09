@@ -184,11 +184,13 @@ class PythonArchive(object):
         """
 
         # Extend the list of import roots to include workspace roots
-        all_import_roots = set(self.import_roots)
+        top_roots = set()
         for stored_path in manifest.keys():
             if '/' in stored_path:  # Zip file paths use / on all platforms
-                all_import_roots.add(stored_path.split('/', 1)[0])
-        import_roots = sorted(all_import_roots)
+                top_dir = stored_path.split('/', 1)[0]
+                if top_dir not in top_roots:
+                    top_roots.add(top_dir)
+        import_roots = list(self.import_roots) + sorted(top_roots)
 
         # Include some files that every .par file needs at runtime
         stored_resources = {}
