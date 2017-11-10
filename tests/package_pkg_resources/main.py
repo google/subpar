@@ -83,7 +83,7 @@ def main():
     module = __import__(req.name)
     assert module.x == req.name, (module, vars(module))
 
-    # Package exists, has code at the top level directory
+    # Package exists, has code in a subdir
     yapf_spec = 'yapf==0.19.0'
     req = pkg_resources.Requirement.parse(yapf_spec)
     # Extract single file
