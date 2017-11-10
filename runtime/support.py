@@ -22,13 +22,33 @@
 3. Resources stored in a .par file may need to be exposed as OS-level
    files instead of Python File objects.
 
-We try a succession of different strategies until we find one that
-works.
+We hook into the pkg_resources module, if present, to achieve 2 and 3.
 
-TODO: Strategy: FUSE filesystem
-TODO: Strategy: dlopen_with_offset
-TODO: Strategy: extract all files to a temp dir
-TODO: Strategy: Do nothing if archive doesn't have any C extension modules
+Limitations:
+
+A. Retrieving resources from packages
+
+It should be possible to do this:
+    fn = pkg_resources.resource_filename('mypackage', 'myfile')
+But instead one must do
+    fn = pkg_resources.resource_filename(
+             pkg_resources.Requirement.parse.spec('mypackage'),
+             'myfile')
+
+B. Extraction dir
+
+You should explicitly set the default extraction directory, via
+`pkg_resources.set_extraction_path(my_directory)`, since the default
+is not safe.  For example:
+
+    tmpdir = tempfile.mkdtemp()
+    pkg_resources.set_extraction(tmpdir)
+
+You should arrange for that directory to be deleted at some point.
+Note that pkg_resources.cleanup_resources() is an unimplemented no-op,
+so use something else.  For example:
+
+    atexit.register(lambda: shutil.rmtree(tmpdir, ignore_errors=True))
 
 """
 
@@ -94,35 +114,69 @@ def _setup_pkg_resources(pkg_resources_name):
         Therefore this class exists.
         """
 
-        def _listdir(self, fspath):
-            """List of resource names in the directory (like ``os.listdir()``)
+        def _zipinfo_name(self, fspath):
+            """Overrides EggMetadata._zipinfo_name"""
+            # Convert a virtual filename (full path to file) into a
+            # zipfile subpath usable with the zipimport directory
+            # cache for our target archive
+            while fspath.endswith(os.sep):
+                fspath = fspath[:-1]
+            if fspath == self.loader.archive:
+                return ''
+            if fspath.startswith(self.zip_pre):
+                return fspath[len(self.zip_pre):]
+            raise AssertionError(
+                "%s is not a subpath of %s" % (fspath, self.zip_pre)
+            )
 
-            Overrides EggMetadata._listdir()
-            """
-
-            zipinfo_name = self._zipinfo_name(fspath)
-            while zipinfo_name.endswith('/'):
-                zipinfo_name = zipinfo_name[:-1]
-            result = self._index().get(zipinfo_name, ())
-            return list(result)
+        def _parts(self, zip_path):
+            """Overrides EggMetadata._parts"""
+            # Convert a zipfile subpath into an egg-relative path part
+            # list.
+            fspath = self.zip_pre + zip_path
+            if fspath == self.egg_root:
+                return []
+            if fspath.startswith(self.egg_root + os.sep):
+                return fspath[len(self.egg_root) + 1:].split(os.sep)
+            raise AssertionError(
+                "%s is not a subpath of %s" % (fspath, self.egg_root)
+            )
 
     def find_dist_info_in_zip(importer, path_item, only=False):
         """Find dist-info style metadata in zip files.
 
-        We ignore the `only` flag because it's not clear what it should
-        actually do in this case.
+        importer: PEP 302-style Importer object
+        path_item (str): filename or pseudo-filename like:
+            /usr/somedirs/main.par
+            or
+            /usr/somedirs/main.par/pypi__portpicker_1_2_0
+        only (bool): We ignore the `only` flag because it's not clear
+            what it should actually do in this case.
+
+        Yields pkg_resources.Distribution objects
         """
         metadata = DistInfoMetadata(importer)
         for subitem in metadata.resource_listdir('/'):
-            if subitem.lower().endswith('.dist-info'):
+            basename, ext = os.path.splitext(subitem)
+            if ext.lower() == '.dist-info':
+                # Parse distribution name
+                match = pkg_resources.EGG_NAME(basename)
+                project_name = 'unknown'
+                if match:
+                    project_name = match.group('name')
+                # Create metadata object
                 subpath = os.path.join(path_item, subitem)
-                submeta = pkg_resources.EggMetadata(
-                    zipimport.zipimporter(subpath))
+                submeta = DistInfoMetadata(
+                    zipimport.zipimporter(path_item))
+                # Override pkg_resources defaults to avoid
+                # "resource_filename() only supported for .egg, not
+                # .zip" message
+                submeta.egg_name = project_name
                 submeta.egg_info = subpath
+                submeta.egg_root = path_item
                 dist = pkg_resources.Distribution.from_location(
                     path_item, subitem, submeta)
                 yield dist
-        return
 
     def find_eggs_and_dist_info_in_zip(importer, path_item, only=False):
         """Chain together our finder and the standard pkg_resources finder
@@ -150,8 +204,9 @@ def _setup_pkg_resources(pkg_resources_name):
         importer = pkgutil.get_importer(entry)
         if isinstance(importer, zipimport.zipimporter):
             for dist in find_dist_info_in_zip(importer, entry, only=True):
-                pkg_resources.working_set.add(dist, entry, insert=False,
-                                              replace=False)
+                if isinstance(dist._provider, DistInfoMetadata):
+                    pkg_resources.working_set.add(dist, entry, insert=False,
+                                                  replace=True)
 
 
 def setup(import_roots=None):
