@@ -72,6 +72,7 @@ def main():
     expected = [
         # The __init__.py file shouldn't be here, but is, as an
         # unfortunately side effect of Bazel runfiles behavior.
+        # https://github.com/google/subpar/issues/51
         '__init__.py',
         'data_file.txt',
         'portpicker-1.2.0.dist-info',
