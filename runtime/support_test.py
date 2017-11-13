@@ -42,15 +42,21 @@ class SupportTest(unittest.TestCase):
         self.assertNotEqual(path, None)
 
     def test_setup(self):
+        old_sys_path = sys.path
+        mock_sys_path = list(sys.path)
+        sys.path = mock_sys_path
         # `import pip` can cause arbitrary sys.path changes,
         # especially if using the Debian `python-pip` package or
-        # similar.  Get that lunacy out of the way before starting
-        # test
+        # similar.  Do it first to get those changes out of the
+        # way.
         try:
             import pip  # noqa
         except ImportError:
             pass
+        finally:
+            sys.path = old_sys_path
 
+        # Run setup()
         old_sys_path = sys.path
         try:
             mock_sys_path = list(sys.path)
@@ -58,6 +64,8 @@ class SupportTest(unittest.TestCase):
             support.setup(import_roots=['some_root', 'another_root'])
         finally:
             sys.path = old_sys_path
+
+        # Check results
         self.assertTrue(mock_sys_path[1].endswith('subpar/runtime/some_root'),
                         mock_sys_path)
         self.assertTrue(
