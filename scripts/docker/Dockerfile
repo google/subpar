@@ -9,8 +9,6 @@ RUN apt-get update -q && apt-get install -qy \
     curl \
     python \
     python3 \
-    python-dev \
-    python-pip \
     unzip \
     software-properties-common
 

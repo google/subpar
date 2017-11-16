@@ -10,8 +10,6 @@ py_library(
     srcs_version = "PY2AND3",
 )
 
-load("@runtime_test_deps//:requirements.bzl", "all_requirements")
-
 py_test(
     name = "support_test",
     size = "small",
@@ -20,5 +18,5 @@ py_test(
     srcs_version = "PY2AND3",
     deps = [
         ":support",
-    ] + all_requirements,
+    ],
 )
