@@ -222,6 +222,7 @@ def setup(import_roots=None):
 
     with zipfile.ZipFile(archive_path, 'r') as archive:
         filepaths = archive.namelist()
+
         module_name_to_files = {}
         modules_with_shared_objs = set()
         for filename in filepaths:
