@@ -81,6 +81,7 @@ def _parfile_impl(ctx):
         outputs=[ctx.outputs.executable],
         progress_message='Building par file %s' % ctx.label,
         executable=ctx.executable.compiler,
+        use_default_shell_env=True,
         arguments=args,
         mnemonic='PythonCompile',
     )
@@ -126,6 +127,7 @@ parfile = rule(
     executable = True,
     implementation = _parfile_impl,
 )
+
 """A self-contained, single-file Python program, with a .par file extension.
 
 You probably want to use par_binary() instead of this.
@@ -155,9 +157,10 @@ is a bug, don't use or depend on it.
 parfile_test = rule(
     attrs = parfile_attrs,
     executable = True,
-    implementation = _parfile_impl,
     test = True,
+    implementation = _parfile_impl,
 )
+
 """Identical to par_binary, but the rule is marked as being a test.
 
 You probably want to use par_test() instead of this.
