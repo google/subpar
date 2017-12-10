@@ -55,7 +55,9 @@ so use something else.  For example:
 import os
 import pkgutil
 import sys
+import tempfile
 import warnings
+import zipfile
 import zipimport
 
 
@@ -218,11 +220,33 @@ def setup(import_roots=None):
                       ImportWarning)
         return
 
-    # We try to match to order of Bazel's stub
-    for import_root in reversed(import_roots or []):
-        new_path = os.path.join(archive_path, import_root)
-        _log('# adding %s to sys.path' % new_path)
-        sys.path.insert(1, new_path)
+    with zipfile.ZipFile(archive_path, 'r') as archive:
+        filepaths = archive.namelist()
+
+        module_name_to_files = {}
+        modules_with_shared_objs = set()
+        for filename in filepaths:
+            module_name = filename[:filename.find('/')]
+            files = module_name_to_files.get(module_name, [])
+            files.append(filename)
+            module_name_to_files[module_name] = files
+            if module_name not in modules_with_shared_objs and filename.endswith('.so'):
+                modules_with_shared_objs.add(module_name)
+
+        # We try to match to order of Bazel's stub
+        tmp_dir = tempfile.mkdtemp()
+        for import_root in reversed(import_roots or []):
+            # Check to see if there are .so files in the archive
+            if import_root in modules_with_shared_objs:
+                for f in module_name_to_files[import_root]:
+                    archive.extract(f, tmp_dir)
+                new_path = os.path.join(tmp_dir, import_root)
+                _log('# extracted so files for %s to %s and adding the tmp dir to sys.path' % (import_root, tmp_dir))
+                sys.path.insert(1, new_path)
+            else:
+                new_path = os.path.join(archive_path, import_root)
+                _log('# adding %s to sys.path' % new_path)
+                sys.path.insert(1, new_path)
 
     # Add hook for package metadata
     _setup_pkg_resources('pkg_resources')
