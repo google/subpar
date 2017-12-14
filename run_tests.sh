@@ -16,11 +16,11 @@
 
 set -euo pipefail
 
+# Find various tools in environment
 PYTHON2=$(which python)
 if [ -z "${PYTHON2}" ]; then
   PYTHON2=$(which python2)
 fi
-PYTHON3=$(which python3)
 
 # Make sure 'python' is actually Python 2.  Some distributions
 # incorrectly have 'python' as Python 3.
@@ -34,19 +34,58 @@ if [ -n "${PYTHON2}" ]; then
   fi
 fi
 
+PYTHON3=$(which python3)
+
+VIRTUALENV=$(which virtualenv)
+VIRTUALENVDIR=$(dirname $0)/.env
+# Virtualenv `activate` needs $PS1 set
+PS1='$ '
+
 # Must have at least one Python interpreter to test
 if [ -z "${PYTHON2}" -a -z "${PYTHON3}" ]; then
   echo "ERROR: Could not find Python 2 or 3 interpreter on $PATH" 1>&2
   exit 1
 fi
 
-# Run tests
-if [ -n "${PYTHON2}" ]; then
-  echo "Found Python 2 at ${PYTHON2}"
-  bazel test --python_path="${PYTHON2}" --test_output=errors //...
-fi
+# Run test matrix
+for PYTHON_INTERPRETER in "${PYTHON2}" "${PYTHON3}"; do
+  if [ -z "${PYTHON_INTERPRETER}" ] ; then
+    continue;
+  fi
 
-if [ -n "${PYTHON3}" ]; then
-  echo "Found Python 3 at ${PYTHON3}"
-  bazel test --define subpar_test_python_version=3 --python_path="${PYTHON3}" --test_output=errors //...
-fi
+  if [ "${PYTHON_INTERPRETER}" = "${PYTHON3}" ]; then
+    BAZEL_TEST="bazel test --define subpar_test_python_version=3"
+  else
+    BAZEL_TEST="bazel test"
+  fi
+
+  echo "Testing ${PYTHON_INTERPRETER}"
+  bazel clean
+  ${BAZEL_TEST} --python_path="${PYTHON_INTERPRETER}" --test_output=errors //...
+
+  if [ -n "${VIRTUALENV}" ]; then
+    echo "Testing bare virtualenv"
+    rm -rf "${VIRTUALENVDIR}"
+    "${VIRTUALENV}" \
+      -p "${PYTHON_INTERPRETER}" \
+      --no-setuptools --no-pip --no-wheel \
+      "${VIRTUALENVDIR}"
+    source "${VIRTUALENVDIR}"/bin/activate
+    bazel clean
+    ${BAZEL_TEST} --python_path=$(which python) --test_output=errors //...
+    deactivate
+
+    for REQUIREMENTS in tests/requirements-test-*.txt; do
+      echo "Testing virtualenv ${REQUIREMENTS}"
+      rm -rf "${VIRTUALENVDIR}"
+      "${VIRTUALENV}" \
+        -p "${PYTHON_INTERPRETER}" \
+        "${VIRTUALENVDIR}"
+      source "${VIRTUALENVDIR}"/bin/activate
+      pip install -r "${REQUIREMENTS}"
+      bazel clean
+      ${BAZEL_TEST} --python_path=$(which python) --test_output=errors //...
+      deactivate
+    done
+  fi
+done
