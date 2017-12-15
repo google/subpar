@@ -69,11 +69,14 @@ def _parfile_impl(ctx):
         ctx.attr.src.files_to_run.runfiles_manifest,
         ]
 
+    zip_safe = ctx.attr.zip_safe
+
     # Assemble command line for .par compiler
     args = [
         '--manifest_file', sources_file.path,
         '--outputpar', ctx.outputs.executable.path,
         '--stub_file', stub_file,
+        '--zip_safe', str(zip_safe),
         main_py_file.path,
     ]
     ctx.action(
@@ -118,6 +121,7 @@ parfile_attrs = {
         executable = True,
         cfg = "host",
     ),
+    "zip_safe": attr.bool(default=True),
 }
 
 # Rule to create a parfile given a py_binary() as input
@@ -125,6 +129,7 @@ parfile = rule(
     attrs = parfile_attrs,
     executable = True,
     implementation = _parfile_impl,
+    test = False,
 )
 """A self-contained, single-file Python program, with a .par file extension.
 
@@ -147,9 +152,13 @@ Args:
 
   compiler: Internal use only.
 
+  zip_safe: Whether to import Python code and read datafiles directly
+            from the zip archive.  Otherwise, if False, all files are
+            extracted to a temporary directory on disk each time the
+            par file executes.
+
 TODO(b/27502830): A directory foo.par.runfiles is also created. This
 is a bug, don't use or depend on it.
-
 """
 
 parfile_test = rule(
@@ -184,9 +193,10 @@ def par_binary(name, **kwargs):
     default_python_version = kwargs.get('default_python_version', 'PY2')
     visibility = kwargs.get('visibility')
     testonly = kwargs.get('testonly', False)
+    zip_safe = kwargs.get('zip_safe', True)
     parfile(name=name + '.par', src=name, main=main, imports=imports,
             default_python_version=default_python_version, visibility=visibility,
-            testonly=testonly)
+            testonly=testonly, zip_safe=zip_safe)
 
 def par_test(name, **kwargs):
     """An executable Python test.
@@ -199,7 +209,10 @@ def par_test(name, **kwargs):
     imports = kwargs.get('imports')
     default_python_version = kwargs.get('default_python_version', 'PY2')
     visibility = kwargs.get('visibility')
+    testonly = kwargs.get('testonly', True)
+    zip_safe = kwargs.get('zip_safe', True)
     parfile_test(
         name=name + '.par', src=name, main=main, imports=imports,
         default_python_version=default_python_version, visibility=visibility,
+        testonly=testonly, zip_safe=zip_safe,
     )

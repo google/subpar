@@ -49,6 +49,16 @@ def make_command_line_parser():
         '--stub_file',
         help='Read imports and interpreter path from the specified stub file',
         required=True)
+    # See
+    # http://setuptools.readthedocs.io/en/latest/setuptools.html#setting-the-zip-safe-flag
+    # for background and explanation.
+    parser.add_argument(
+        '--zip_safe',
+        help='Safe to import modules and access datafiles straight from zip ' +
+        'archive?  If False, all files will be extracted to a temporary ' +
+        'directory at the start of execution.',
+        type=bool,
+        default=True)
     return parser
 
 
