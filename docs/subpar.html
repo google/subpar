@@ -140,7 +140,7 @@ specifically need to test a module's behaviour when used in a .par binary.</p>
 
           <h2 id="parfile">parfile</h2>
 
-          <pre>parfile(<a href="#parfile.name">name</a>, <a href="#parfile.src">src</a>, <a href="#parfile.compiler">compiler</a>, <a href="#parfile.default_python_version">default_python_version</a>, <a href="#parfile.imports">imports</a>, <a href="#parfile.main">main</a>)</pre>
+          <pre>parfile(<a href="#parfile.name">name</a>, <a href="#parfile.src">src</a>, <a href="#parfile.compiler">compiler</a>, <a href="#parfile.default_python_version">default_python_version</a>, <a href="#parfile.imports">imports</a>, <a href="#parfile.main">main</a>, <a href="#parfile.zip_safe">zip_safe</a>)</pre>
 
           <p>A self-contained, single-file Python program, with a .par file extension.</p>
 <p>You probably want to use par_binary() instead of this.</p>
@@ -202,13 +202,23 @@ the application.</p>
 <p>See <a href="http://www.bazel.io/docs/be/python.html#py_binary.main">py_binary.main</a></p>
       </td>
     </tr>
+    <tr id="parfile.zip_safe">
+      <td><code>zip_safe</code></td>
+      <td>
+        <p><code>Boolean; Optional; Default is True</code></p>
+        <p>Whether to import Python code and read datafiles directly
+from the zip archive.  Otherwise, if False, all files are
+extracted to a temporary directory on disk each time the
+par file executes.</p>
+      </td>
+    </tr>
   </tbody>
 </table>
           <hr>
 
           <h2 id="parfile_test">parfile_test</h2>
 
-          <pre>parfile_test(<a href="#parfile_test.name">name</a>, <a href="#parfile_test.src">src</a>, <a href="#parfile_test.compiler">compiler</a>, <a href="#parfile_test.default_python_version">default_python_version</a>, <a href="#parfile_test.imports">imports</a>, <a href="#parfile_test.main">main</a>)</pre>
+          <pre>parfile_test(<a href="#parfile_test.name">name</a>, <a href="#parfile_test.src">src</a>, <a href="#parfile_test.compiler">compiler</a>, <a href="#parfile_test.default_python_version">default_python_version</a>, <a href="#parfile_test.imports">imports</a>, <a href="#parfile_test.main">main</a>, <a href="#parfile_test.zip_safe">zip_safe</a>)</pre>
 
           <p>Identical to par_binary, but the rule is marked as being a test.</p>
 <p>You probably want to use par_test() instead of this.</p>
@@ -268,6 +278,16 @@ the application.</p>
 <p>See <a href="http://www.bazel.io/docs/be/python.html#py_binary.main">py_binary.main</a></p>
       </td>
     </tr>
+    <tr id="parfile_test.zip_safe">
+      <td><code>zip_safe</code></td>
+      <td>
+        <p><code>Boolean; Optional; Default is True</code></p>
+        <p>Whether to import Python code and read datafiles directly
+from the zip archive.  Otherwise, if False, all files are
+extracted to a temporary directory on disk each time the
+par file executes.</p>
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -278,7 +298,7 @@ the application.</p>
           <div class="mdl-mini-footer__left-section">
             <div class="mdl-logo">Bazel</div>
             <ul class="mdl-mini-footer__link-list">
-              <li><a href="http://bazel.io">Home</a></li>
+              <li><a href="https://bazel.build">Home</a></li>
               <li><a href="https://github.com/bazelbuild">GitHub</a></li>
             </ul>
           </div>
