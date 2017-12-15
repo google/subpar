@@ -12,5 +12,4 @@ addons:
     packages:
       - bazel
 script:
-  - bazel build //...
-  - bazel test --test_output=errors //...
+  - ./run_tests.sh
