@@ -83,6 +83,30 @@ def _find_archive():
     return archive_path
 
 
+def _version_check_pkg_resources(pkg_resources):
+    """Check that pkg_resources supports the APIs we need."""
+    # Check that pkg_resources is new enough.
+    #
+    # Determining the version of an arbitrarily old version of
+    # pkg_resources is tough, since it doesn't have a version literal,
+    # and the accompanying setuptools package computes its version
+    # dynamically from metadata that might not exist.  Also setuptools
+    # might not exist, especially in the case of the pip-vendored copy
+    # of pkg_resources.
+    #
+    # We do a feature detection instead.  We examine
+    # pkg_resources.WorkingSet.add, and see if it has at least the
+    # third default argument ('replace').
+    try:
+        if sys.version_info[0] < 3:
+            defaults = pkg_resources.WorkingSet.add.im_func.func_defaults
+        else:
+            defaults = pkg_resources.WorkingSet.add.__defaults__
+        return len(defaults) >= 3
+    except AttributeError:
+        return False
+
+
 def _setup_pkg_resources(pkg_resources_name):
     """Setup hooks into the `pkg_resources` module
 
@@ -99,6 +123,10 @@ def _setup_pkg_resources(pkg_resources_name):
         if pkg_resources is None:
             return
     except ImportError:
+        # Skip setup
+        return
+
+    if not _version_check_pkg_resources(pkg_resources):
         # Skip setup
         return
 
