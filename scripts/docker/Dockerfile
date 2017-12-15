@@ -9,6 +9,7 @@ RUN apt-get update -q && apt-get install -qy \
     curl \
     python \
     python3 \
+    unzip \
     software-properties-common
 
 # Java 8 for Bazel
