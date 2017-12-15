@@ -41,6 +41,24 @@ class SupportTest(unittest.TestCase):
         path = support._find_archive()
         self.assertNotEqual(path, None)
 
+    def test__version_check(self):
+        class MockModule(object): pass
+
+        class MockOldWorkingSet(object):
+            def add(self, dist, entry=None, insert=True): pass
+
+        class MockNewWorkingSet(object):
+            def add(self, dist, entry=None, insert=True, replace=False): pass
+
+        pkg_resources = MockModule()
+        self.assertFalse(support._version_check_pkg_resources(pkg_resources))
+
+        pkg_resources.WorkingSet = MockOldWorkingSet()
+        self.assertFalse(support._version_check_pkg_resources(pkg_resources))
+
+        pkg_resources.WorkingSet = MockNewWorkingSet()
+        self.assertTrue(support._version_check_pkg_resources(pkg_resources))
+
     def test_setup(self):
         old_sys_path = sys.path
         mock_sys_path = list(sys.path)
@@ -72,7 +90,11 @@ class SupportTest(unittest.TestCase):
             mock_sys_path[2].endswith('subpar/runtime/another_root'),
             mock_sys_path)
         self.assertEqual(mock_sys_path[0], sys.path[0])
-        self.assertEqual(mock_sys_path[3:], sys.path[1:])
+        # If we have no pkg_resources, or a really old version of
+        # pkg_resources, setup skips some things
+        module = sys.modules.get('pkg_resources', None)
+        if module and support._version_check_pkg_resources(module):
+            self.assertEqual(mock_sys_path[3:], sys.path[1:])
 
 
 if __name__ == '__main__':

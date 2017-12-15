@@ -1,0 +1,2 @@
+# Debian 8 `python-setup` package
+setuptools==5.5.1
