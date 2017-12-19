@@ -172,7 +172,7 @@ parfile_test = rule(
 You probably want to use par_test() instead of this.
 """
 
-def par_binary(name, **kwargs):
+def par_binary(name, compiler="//compiler:compiler.par", **kwargs):
     """An executable Python program.
 
     par_binary() is a drop-in replacement for py_binary() that also
@@ -196,7 +196,9 @@ def par_binary(name, **kwargs):
     zip_safe = kwargs.get('zip_safe', True)
     parfile(name=name + '.par', src=name, main=main, imports=imports,
             default_python_version=default_python_version, visibility=visibility,
-            testonly=testonly, zip_safe=zip_safe)
+            compiler=compiler,
+            testonly=testonly,
+            zip_safe=zip_safe)
 
 def par_test(name, **kwargs):
     """An executable Python test.
