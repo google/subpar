@@ -16,6 +16,8 @@
 
 load("//:debug.bzl", "dump")
 
+DEFAULT_COMPILER = '//compiler:compiler.par'
+
 def _parfile_impl(ctx):
     """Implementation of parfile() rule"""
     # Find the main entry point
@@ -117,7 +119,7 @@ parfile_attrs = {
     "imports": attr.string_list(default = []),
     "default_python_version": attr.string(mandatory = True),
     "compiler": attr.label(
-        default = Label("//compiler:compiler.par"),
+        default = Label(DEFAULT_COMPILER),
         executable = True,
         cfg = "host",
     ),
@@ -172,7 +174,7 @@ parfile_test = rule(
 You probably want to use par_test() instead of this.
 """
 
-def par_binary(name, compiler="//compiler:compiler.par", **kwargs):
+def par_binary(name, **kwargs):
     """An executable Python program.
 
     par_binary() is a drop-in replacement for py_binary() that also
@@ -187,6 +189,7 @@ def par_binary(name, compiler="//compiler:compiler.par", **kwargs):
     See [py_binary](http://www.bazel.io/docs/be/python.html#py_binary)
     for arguments and usage.
     """
+    compiler = kwargs.pop('compiler', DEFAULT_COMPILER)
     native.py_binary(name=name, **kwargs)
     main = kwargs.get('main', name + '.py')
     imports = kwargs.get('imports')
