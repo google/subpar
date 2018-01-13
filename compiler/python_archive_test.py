@@ -46,6 +46,7 @@ class PythonArchiveTest(unittest.TestCase):
         self.output_filename = os.path.join(self.output_dir, 'output.par')
         self.interpreter = '/usr/bin/python2'
         self.import_roots = []
+        self.zip_safe = True
 
     def _construct(self, manifest_filename=None):
         return python_archive.PythonArchive(
@@ -55,6 +56,7 @@ class PythonArchiveTest(unittest.TestCase):
             manifest_filename=(manifest_filename or self.manifest_file.name),
             manifest_root=os.getcwd(),
             output_filename=self.output_filename,
+            zip_safe=self.zip_safe,
         )
 
     def test_create_manifest_not_found(self):

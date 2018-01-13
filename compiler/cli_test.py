@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import unittest
 
 from subpar.compiler import cli
@@ -20,6 +21,14 @@ from subpar.compiler import test_utils
 
 
 class CliTest(unittest.TestCase):
+
+    def test_bool_from_string(self):
+        self.assertIs(cli.bool_from_string('True'), True)
+        self.assertIs(cli.bool_from_string('False'), False)
+        with self.assertRaises(argparse.ArgumentTypeError):
+            cli.bool_from_string('')
+        with self.assertRaises(argparse.ArgumentTypeError):
+            cli.bool_from_string('Yes')
 
     def test_make_command_line_parser(self):
         parser = cli.make_command_line_parser()

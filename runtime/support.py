@@ -52,10 +52,14 @@ so use something else.  For example:
 
 """
 
+import atexit
 import os
 import pkgutil
+import shutil
 import sys
+import tempfile
 import warnings
+import zipfile
 import zipimport
 
 
@@ -67,20 +71,51 @@ def _log(msg):
 
 
 def _find_archive():
-    """Find the path to the currently executing .par file"""
+    """Find the path to the currently executing .par file
+
+    We don't handle the case where prefix is non-empty.
+    """
     main = sys.modules.get('__main__')
     if not main:
         _log('# __main__ module not found')
         return None
-    main_file = getattr(main, '__file__', None)
-    if not main_file:
-        _log('# __main__.__file__ not set')
+    main_loader = getattr(main, '__loader__')
+    if not main_loader:
+        _log('# __main__.__loader__ not set')
         return None
-    archive_path = os.path.dirname(main_file)
-    if archive_path == '':
-        _log('# unexpected __main__.__file__ is %s' % main_file)
+    prefix = getattr(main_loader, 'prefix')
+    if prefix != '':
+        _log('# unexpected prefix for __main__.__loader__ is %s' %
+             main_loader.prefix)
+        return None
+    archive_path = getattr(main_loader, 'archive')
+    if not archive_path:
+        _log('# missing archive for __main__.__loader__')
         return None
     return archive_path
+
+
+def _extract_files(archive_path):
+    """Extract the contents of this .par file to disk.
+
+    This creates a temporary directory, and registers an atexit
+    handler to clean that directory on program exit.  Extraction and
+    cleanup will potentially use significant time and disk space.
+
+    Returns:
+        Directory where contents were extracted to.
+    """
+    extract_dir = tempfile.mkdtemp()
+    def _extract_files_cleanup():
+        shutil.rmtree(extract_dir, ignore_errors=True)
+    atexit.register(_extract_files_cleanup)
+    _log('# extracting %s to %s' % (archive_path, extract_dir))
+
+    zip_file = zipfile.ZipFile(archive_path, mode='r')
+    zip_file.extractall(extract_dir)
+    zip_file.close()
+
+    return extract_dir
 
 
 def _version_check_pkg_resources(pkg_resources):
@@ -147,8 +182,7 @@ def _setup_pkg_resources(pkg_resources_name):
             # Convert a virtual filename (full path to file) into a
             # zipfile subpath usable with the zipimport directory
             # cache for our target archive
-            while fspath.endswith(os.sep):
-                fspath = fspath[:-1]
+            fspath = fspath.rstrip(os.sep)
             if fspath == self.loader.archive:
                 return ''
             if fspath.startswith(self.zip_pre):
@@ -236,22 +270,58 @@ def _setup_pkg_resources(pkg_resources_name):
                     pkg_resources.working_set.add(dist, entry, insert=False,
                                                   replace=True)
 
+def _initialize_import_path(import_roots, import_prefix):
+    """Add extra entries to PYTHONPATH so that modules can be imported."""
+    # We try to match to order of Bazel's stub
+    full_roots = [
+        os.path.join(import_prefix, import_root)
+        for import_root in import_roots]
+    sys.path[1:1] = full_roots
+    _log('# adding %s to sys.path' % full_roots)
 
-def setup(import_roots=None):
-    """Initialize subpar run-time support"""
-    # Add third-party library entries to sys.path
+
+def setup(import_roots, zip_safe):
+    """Initialize subpar run-time support
+
+    Args:
+      import_root (list): subdirs inside .par file to add to the
+                          module import path at runtime.
+      zip_safe (bool): If False, extract the .par file contents to a
+                       temporary directory, and import everything from
+                       that directory.
+
+    Returns:
+      True if setup was successful, else False
+    """
     archive_path = _find_archive()
     if not archive_path:
         warnings.warn('Failed to initialize .par file runtime support',
-                      ImportWarning)
-        return
+                      UserWarning)
+        return False
+    if sys.path[0] != archive_path:
+        warnings.warn('Failed to initialize .par file runtime support. ' +
+                      'archive_path was %r, sys.path was %r' % (
+                          archive_path, sys.path),
+                      UserWarning)
+        return False
 
-    # We try to match to order of Bazel's stub
-    for import_root in reversed(import_roots or []):
-        new_path = os.path.join(archive_path, import_root)
-        _log('# adding %s to sys.path' % new_path)
-        sys.path.insert(1, new_path)
+    # Extract files to disk if necessary
+    if not zip_safe:
+        extract_dir = _extract_files(archive_path)
+        # sys.path[0] is the name of the executing .par file.  Point
+        # it to the extract directory instead, so that Python searches
+        # there for imports.
+        sys.path[0] = extract_dir
+        import_prefix = extract_dir
+    else: # Import directly from .par file
+        extract_dir = None
+        import_prefix = archive_path
+
+    # Initialize import path
+    _initialize_import_path(import_roots, import_prefix)
 
     # Add hook for package metadata
     _setup_pkg_resources('pkg_resources')
     _setup_pkg_resources('pip._vendor.pkg_resources')
+
+    return True
