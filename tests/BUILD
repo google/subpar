@@ -83,10 +83,22 @@ par_binary(
 )
 
 par_binary(
-    name = "package_import_roots/import_roots",
+    name = "package_extract/extract",
     srcs = [
-        "package_import_roots/import_roots.py",
+        "package_extract/extract.py",
+        "package_extract/extract_helper.py",
+        "package_extract/extract_helper_package/__init__.py",
     ],
+    data = ["package_extract/extract_helper_package/extract_dat.txt"],
+    imports = ["package_extract"],
+    main = "package_extract/extract.py",
+    srcs_version = "PY2AND3",
+    zip_safe = False,
+)
+
+par_binary(
+    name = "package_import_roots/import_roots",
+    srcs = ["package_import_roots/import_roots.py"],
     imports = ["package_import_roots"],
     main = "package_import_roots/import_roots.py",
     srcs_version = "PY2AND3",
@@ -159,6 +171,7 @@ par_binary(
     ),
     ("direct_dependency", "//tests/package_b:b", "tests/package_b/b"),
     ("external_workspace", "//tests:package_e/e", "tests/package_e/e"),
+    ("extract", "//tests:package_extract/extract", "tests/package_extract/extract"),
     ("import_root", "//tests:package_d/d", "tests/package_d/d"),
     (
         "import_roots",
