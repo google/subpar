@@ -52,22 +52,23 @@ del _
 
 # Boilerplate must be after the last __future__ import.  See
 # https://docs.python.org/2/reference/simple_stmts.html#future
-_boilerplate_skip_regex = re.compile('''(?sx)
-  (?P<before>
-   (
+_boilerplate_insertion_regex = re.compile('''(?sx)
+(?P<before>
     (
-     ([#][^\\r\\n]*) | # comment
-     (\\s*) | # whitespace
-     (from\\s+__future__\\s+import\\s+[^\\r\\n]+) | # future import
-     ('[^'].*?') | # module doc comment form 1
-     ("[^"].*?") | # module doc comment form 2
-     (\'\'\'.*?(\'\'\')) | # module doc comment form 3
-     (""".*?""") # module doc comment form 4
-    )
-    [\\r\\n]+ # end of line(s) for Mac, Unix and/or Windows
-   )*
-  )
-  (?P<after>.*)
+        (
+            ([#][^\\r\\n]*) | # comment
+            (\\s*) | # whitespace
+            (from\\s+__future__\\s+import\\s+[^\\r\\n]+) | # future import
+            ('[^'].*?') | # module doc comment form 1
+            ("[^"].*?") | # module doc comment form 2
+            (\'\'\'.*?(\'\'\')) | # module doc comment form 3
+            (""".*?""") # module doc comment form 4
+        )
+        [\\r\\n]+ # end of line(s) for Mac, Unix and/or Windows
+    )*
+)
+# Boilerplate is inserted here
+(?P<after>.*)
 ''')
 
 # Fully qualified names of subpar packages
@@ -185,7 +186,7 @@ class PythonArchive(object):
         # Find a good place to insert the boilerplate, which is the
         # first line that is not a comment, blank line, doc comment,
         # or future import.
-        match = re.match(_boilerplate_skip_regex, original_content)
+        match = re.match(_boilerplate_insertion_regex, original_content)
         assert match, original_content
         assert (len(match.group('before')) + len(match.group('after'))) == \
                 len(original_content), (match, original_content)
