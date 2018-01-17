@@ -50,6 +50,26 @@ del _
 # End boilerplate
 """
 
+# Boilerplate must be after the last __future__ import.  See
+# https://docs.python.org/2/reference/simple_stmts.html#future
+_boilerplate_skip_regex = re.compile('''(?sx)
+  (?P<before>
+   (
+    (
+     ([#][^\\r\\n]*) | # comment
+     (\\s*) | # whitespace
+     (from\\s+__future__\\s+import\\s+[^\\r\\n]+) | # future import
+     ('[^'].*?') | # module doc comment form 1
+     ("[^"].*?") | # module doc comment form 2
+     (\'\'\'.*?(\'\'\')) | # module doc comment form 3
+     (""".*?""") # module doc comment form 4
+    )
+    [\\r\\n]+ # end of line(s) for Mac, Unix and/or Windows
+   )*
+  )
+  (?P<after>.*)
+''')
+
 # Fully qualified names of subpar packages
 _subpar_package = 'subpar'
 _compiler_package = _subpar_package + '.compiler'
@@ -159,25 +179,23 @@ class PythonArchive(object):
         # Read main source file, in unknown encoding.  We use latin-1
         # here, but any single-byte encoding that doesn't raise errors
         # would work.
-        output_lines = []
         with io.open(main_filename, 'rt', encoding='latin-1') as main_file:
-            output_lines = list(main_file)
+            original_content = main_file.read()
 
         # Find a good place to insert the boilerplate, which is the
-        # first line that is not a comment, blank line, or future
-        # import.
-        skip_regex = re.compile(
-            '''(#.*)|(\\s+)|(from\\s+__future__\\s+import)''')
-        idx = 0
-        while idx < len(output_lines):
-            if not skip_regex.match(output_lines[idx]):
-                break
-            idx += 1
+        # first line that is not a comment, blank line, doc comment,
+        # or future import.
+        match = re.match(_boilerplate_skip_regex, original_content)
+        assert match, original_content
+        assert (len(match.group('before')) + len(match.group('after'))) == \
+                len(original_content), (match, original_content)
+        new_content = (match.group('before') +
+                       boilerplate_contents +
+                       match.group('after'))
 
         # Insert boilerplate (might be beginning, middle or end)
-        output_lines[idx:idx] = [boilerplate_contents]
-        contents = ''.join(output_lines).encode('latin-1')
-        return stored_resource.StoredContent('__main__.py', contents)
+        encoded_content = new_content.encode('latin-1')
+        return stored_resource.StoredContent('__main__.py', encoded_content)
 
     def scan_manifest(self, manifest):
         """Return a dict of StoredResources based on an input manifest.
