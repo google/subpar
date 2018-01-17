@@ -23,6 +23,17 @@ from subpar.compiler import error
 from subpar.compiler import python_archive
 
 
+def bool_from_string(raw_value):
+    """Parse a boolean command line argument value"""
+    if raw_value == 'True':
+        return True
+    elif raw_value == 'False':
+        return False
+    else:
+        raise argparse.ArgumentTypeError(
+            'Value must be True or False, got %r instead.' % raw_value)
+
+
 def make_command_line_parser():
     """Return an object that can parse this program's command line"""
     parser = argparse.ArgumentParser(
@@ -57,8 +68,8 @@ def make_command_line_parser():
         help='Safe to import modules and access datafiles straight from zip ' +
         'archive?  If False, all files will be extracted to a temporary ' +
         'directory at the start of execution.',
-        type=bool,
-        default=True)
+        type=bool_from_string,
+        required=True)
     return parser
 
 
@@ -120,5 +131,6 @@ def main(argv):
         output_filename=args.outputpar,
         manifest_filename=args.manifest_file,
         manifest_root=args.manifest_root,
+        zip_safe=args.zip_safe,
     )
     par.create()

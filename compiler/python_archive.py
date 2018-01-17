@@ -45,7 +45,7 @@ from subpar.compiler import stored_resource
 _boilerplate_template = """\
 # Boilerplate added by subpar/compiler/python_archive.py
 from %(runtime_package)s import support as _
-_.setup(import_roots=%(import_roots)s)
+_.setup(import_roots=%(import_roots)s, zip_safe=%(zip_safe)s)
 del _
 # End boilerplate
 """
@@ -76,6 +76,7 @@ class PythonArchive(object):
                  manifest_filename,
                  manifest_root,
                  output_filename,
+                 zip_safe,
                  ):
         self.main_filename = main_filename
 
@@ -84,6 +85,7 @@ class PythonArchive(object):
         self.manifest_filename = manifest_filename
         self.manifest_root = manifest_root
         self.output_filename = output_filename
+        self.zip_safe = zip_safe
 
         self.compression = zipfile.ZIP_DEFLATED
 
@@ -141,6 +143,7 @@ class PythonArchive(object):
         boilerplate_contents = _boilerplate_template % {
             'runtime_package': _runtime_package,
             'import_roots': str(import_roots),
+            'zip_safe': self.zip_safe,
         }
         return boilerplate_contents.encode('ascii').decode('ascii')
 

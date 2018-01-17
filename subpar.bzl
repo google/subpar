@@ -190,13 +190,14 @@ def par_binary(name, **kwargs):
     for arguments and usage.
     """
     compiler = kwargs.pop('compiler', DEFAULT_COMPILER)
+    zip_safe = kwargs.pop('zip_safe', True)
     native.py_binary(name=name, **kwargs)
+
     main = kwargs.get('main', name + '.py')
     imports = kwargs.get('imports')
     default_python_version = kwargs.get('default_python_version', 'PY2')
     visibility = kwargs.get('visibility')
     testonly = kwargs.get('testonly', False)
-    zip_safe = kwargs.get('zip_safe', True)
     parfile(name=name + '.par', src=name, main=main, imports=imports,
             default_python_version=default_python_version, visibility=visibility,
             compiler=compiler,
@@ -209,13 +210,14 @@ def par_test(name, **kwargs):
     Just like par_binary, but for py_test instead of py_binary.  Useful if you
     specifically need to test a module's behaviour when used in a .par binary.
     """
+    zip_safe = kwargs.pop('zip_safe', True)
     native.py_test(name=name, **kwargs)
+
     main = kwargs.get('main', name + '.py')
     imports = kwargs.get('imports')
     default_python_version = kwargs.get('default_python_version', 'PY2')
     visibility = kwargs.get('visibility')
     testonly = kwargs.get('testonly', True)
-    zip_safe = kwargs.get('zip_safe', True)
     parfile_test(
         name=name + '.par', src=name, main=main, imports=imports,
         default_python_version=default_python_version, visibility=visibility,
