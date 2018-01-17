@@ -16,6 +16,8 @@
 
 load("//:debug.bzl", "dump")
 
+DEFAULT_COMPILER = '//compiler:compiler.par'
+
 def _parfile_impl(ctx):
     """Implementation of parfile() rule"""
     # Find the main entry point
@@ -117,7 +119,7 @@ parfile_attrs = {
     "imports": attr.string_list(default = []),
     "default_python_version": attr.string(mandatory = True),
     "compiler": attr.label(
-        default = Label("//compiler:compiler.par"),
+        default = Label(DEFAULT_COMPILER),
         executable = True,
         cfg = "host",
     ),
@@ -187,6 +189,7 @@ def par_binary(name, **kwargs):
     See [py_binary](http://www.bazel.io/docs/be/python.html#py_binary)
     for arguments and usage.
     """
+    compiler = kwargs.pop('compiler', DEFAULT_COMPILER)
     zip_safe = kwargs.pop('zip_safe', True)
     native.py_binary(name=name, **kwargs)
 
@@ -195,9 +198,17 @@ def par_binary(name, **kwargs):
     default_python_version = kwargs.get('default_python_version', 'PY2')
     visibility = kwargs.get('visibility')
     testonly = kwargs.get('testonly', False)
-    parfile(name=name + '.par', src=name, main=main, imports=imports,
-            default_python_version=default_python_version, visibility=visibility,
-            testonly=testonly, zip_safe=zip_safe)
+    parfile(
+        compiler=compiler,
+        default_python_version=default_python_version,
+        imports=imports,
+        main=main,
+        name=name + '.par',
+        src=name,
+        testonly=testonly,
+        visibility=visibility,
+        zip_safe=zip_safe,
+    )
 
 def par_test(name, **kwargs):
     """An executable Python test.
@@ -205,6 +216,7 @@ def par_test(name, **kwargs):
     Just like par_binary, but for py_test instead of py_binary.  Useful if you
     specifically need to test a module's behaviour when used in a .par binary.
     """
+    compiler = kwargs.pop('compiler', DEFAULT_COMPILER)
     zip_safe = kwargs.pop('zip_safe', True)
     native.py_test(name=name, **kwargs)
 
@@ -214,7 +226,13 @@ def par_test(name, **kwargs):
     visibility = kwargs.get('visibility')
     testonly = kwargs.get('testonly', True)
     parfile_test(
-        name=name + '.par', src=name, main=main, imports=imports,
-        default_python_version=default_python_version, visibility=visibility,
-        testonly=testonly, zip_safe=zip_safe,
+        compiler=compiler,
+        default_python_version=default_python_version,
+        imports=imports,
+        main=main,
+        name=name + '.par',
+        src=name,
+        testonly=testonly,
+        visibility=visibility,
+        zip_safe=zip_safe,
     )
