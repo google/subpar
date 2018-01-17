@@ -2,7 +2,7 @@
 # -*- coding: latin-1
 
 # Test module docstring before boilerplate insertion
-"""Integration test program G for Subpar.
+"""Integration test program for Subpar.
 
 Test bootstrap interaction with __future__ imports and source file encodings.
 """
