@@ -23,5 +23,7 @@ def lint(session):
     session.install('flake8', 'flake8-import-order')
     session.run(
         'flake8',
-        '.',
+        '--import-order-style', 'google',
+        'compiler', 'runtime', 'tests',
+        'nox.py',
     )

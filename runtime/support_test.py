@@ -15,7 +15,6 @@
 import io
 import os
 import sys
-import tempfile
 import unittest
 import zipfile
 
@@ -57,7 +56,8 @@ class SupportTest(unittest.TestCase):
         cls.entry_data = entry_data
 
         # Create mock loader object
-        class MockLoader(object): pass
+        class MockLoader(object):
+            pass
         mock_loader = MockLoader()
         mock_loader.archive = zipfile_name
         mock_loader.prefix = ''
@@ -112,13 +112,16 @@ class SupportTest(unittest.TestCase):
             self.assertEqual(actual_data, self.entry_data)
 
     def test__version_check(self):
-        class MockModule(object): pass
+        class MockModule(object):
+            pass
 
         class MockOldWorkingSet(object):
-            def add(self, dist, entry=None, insert=True): pass
+            def add(self, dist, entry=None, insert=True):
+                pass
 
         class MockNewWorkingSet(object):
-            def add(self, dist, entry=None, insert=True, replace=False): pass
+            def add(self, dist, entry=None, insert=True, replace=False):
+                pass
 
         pkg_resources = MockModule()
         self.assertFalse(support._version_check_pkg_resources(pkg_resources))
@@ -136,7 +139,8 @@ class SupportTest(unittest.TestCase):
             mock_sys_path = list(sys.path)
             mock_sys_path[0] = self.zipfile_name
             sys.path = mock_sys_path
-            success = support.setup(import_roots=['some_root', 'another_root'], zip_safe=True)
+            success = support.setup(import_roots=['some_root', 'another_root'],
+                                    zip_safe=True)
             self.assertTrue(success)
         finally:
             sys.path = old_sys_path

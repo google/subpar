@@ -39,5 +39,6 @@ def main():
     dat = pkgutil.get_data('extract_helper_package', 'extract_dat.txt')
     assert (dat == b'Dummy data file for extract.py\n'), dat
 
+
 if __name__ == '__main__':
     main()
