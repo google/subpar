@@ -14,6 +14,7 @@
 
 import os
 import subprocess
+import time
 import unittest
 import zipfile
 
@@ -107,6 +108,22 @@ class PythonArchiveTest(unittest.TestCase):
         self.assertTrue(os.path.exists(self.output_filename))
         self.assertEqual(
             subprocess.check_output([self.output_filename]), b'Hello World!\n')
+
+    def test_create_deterministic(self):
+        par1 = self._construct()
+        self.output_filename = self.output_filename + '2'
+        par2 = self._construct()
+
+        par1.create()
+        # Sleep for 3 seconds, which is greater than the 2-second
+        # granularity of zip timestamps
+        time.sleep(3)
+        par2.create()
+
+        # The two par files should be bit-for-bit identical
+        content1 = open(par1.output_filename, 'rb').read()
+        content2 = open(par2.output_filename, 'rb').read()
+        self.assertEqual(content1, content2)
 
     def test_create_temp_parfile(self):
         par = self._construct()
