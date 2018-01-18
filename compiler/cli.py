@@ -60,6 +60,20 @@ def make_command_line_parser():
         '--stub_file',
         help='Read imports and interpreter path from the specified stub file',
         required=True)
+    # The default timestamp is "Jan 1 1980 00:00:00 utc", which is the
+    # earliest time that can be stored in a zip file.
+    #
+    # "Seconds since Unix epoch" was chosen to be compatible with
+    # the SOURCE_DATE_EPOCH standard
+    #
+    # Numeric calue is from running this:
+    #   "date --date='Jan 1 1980 00:00:00 utc' --utc +%s"
+    parser.add_argument(
+        '--timestamp',
+        help='Timestamp (in seconds since Unix epoch) for all stored files',
+        type=int,
+        default=315532800,
+        )
     # See
     # http://setuptools.readthedocs.io/en/latest/setuptools.html#setting-the-zip-safe-flag
     # for background and explanation.
@@ -131,6 +145,7 @@ def main(argv):
         output_filename=args.outputpar,
         manifest_filename=args.manifest_file,
         manifest_root=args.manifest_root,
+        timestamp=args.timestamp,
         zip_safe=args.zip_safe,
     )
     par.create()

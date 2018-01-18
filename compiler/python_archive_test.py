@@ -47,6 +47,8 @@ class PythonArchiveTest(unittest.TestCase):
         self.output_filename = os.path.join(self.output_dir, 'output.par')
         self.interpreter = '/usr/bin/python2'
         self.import_roots = []
+        self.date_time_tuple = (1980, 1, 1, 0, 0, 0)
+        self.timestamp = 315532800
         self.zip_safe = True
 
     def _construct(self, manifest_filename=None):
@@ -57,6 +59,7 @@ class PythonArchiveTest(unittest.TestCase):
             manifest_filename=(manifest_filename or self.manifest_file.name),
             manifest_root=os.getcwd(),
             output_filename=self.output_filename,
+            timestamp=self.timestamp,
             zip_safe=self.zip_safe,
         )
 
@@ -81,7 +84,7 @@ class PythonArchiveTest(unittest.TestCase):
     def test_create_source_file_not_found(self):
         with test_utils.temp_file(b'foo.py doesnotexist.py\n') as manifest_file:
             par = self._construct(manifest_filename=manifest_file.name)
-            with self.assertRaises(OSError):
+            with self.assertRaises((IOError, OSError)):
                 par.create()
 
     def test_create_permission_denied_creating_temp_file(self):
@@ -212,13 +215,23 @@ class PythonArchiveTest(unittest.TestCase):
             self.assertNotEqual(actual, '')
 
     def test_write_zip_data(self):
+        # Create simple .par file
         par = self._construct()
-        with par.create_temp_parfile() as t:
+        with par.create_temp_parfile() as output_file:
+            stored_name = os.path.basename(self.main_file.name)
             resource = stored_resource.StoredFile(
-                os.path.basename(self.main_file.name), self.main_file.name)
-            resources = {resource.stored_filename: resource}
-            par.write_zip_data(t, resources)
-        self.assertTrue(zipfile.is_zipfile(t.name))
+                stored_name, self.date_time_tuple, self.main_file.name)
+            resources = {resource.zipinfo.filename: resource}
+            par.write_zip_data(output_file, resources)
+        output_file.close()
+
+        # Check that it's a valid zipfile
+        self.assertTrue(zipfile.is_zipfile(output_file.name))
+
+        # Check that the file was stored correctly
+        z = zipfile.ZipFile(output_file.name)
+        zipinfo = z.getinfo(stored_name)
+        self.assertEqual(zipinfo.date_time, self.date_time_tuple)
 
     def test_create_final_from_temp(self):
         par = self._construct()
@@ -231,6 +244,9 @@ class PythonArchiveTest(unittest.TestCase):
 
 class ModuleTest(unittest.TestCase):
     """Test module scope functions"""
+
+    def setUp(self):
+        self.date_time_tuple = (1980, 1, 1, 0, 0, 0)
 
     def test_remove_if_present(self):
         tmpdir = test_utils.mkdtemp()
@@ -246,8 +262,9 @@ class ModuleTest(unittest.TestCase):
         self.assertFalse(os.path.exists(filename))
 
     def test_fetch_support_file(self):
-        resource = python_archive.fetch_support_file('support.py')
-        self.assertEqual(resource.stored_filename, 'subpar/runtime/support.py')
+        resource = python_archive.fetch_support_file(
+            'support.py', self.date_time_tuple)
+        self.assertEqual(resource.zipinfo.filename, 'subpar/runtime/support.py')
 
 
 if __name__ == '__main__':

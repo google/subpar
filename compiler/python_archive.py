@@ -28,6 +28,7 @@ See also https://www.python.org/dev/peps/pep-0441/
 
 """
 
+from datetime import datetime
 import io
 import logging
 import os
@@ -76,6 +77,7 @@ class PythonArchive(object):
                  manifest_filename,
                  manifest_root,
                  output_filename,
+                 timestamp,
                  zip_safe,
                  ):
         self.main_filename = main_filename
@@ -85,6 +87,9 @@ class PythonArchive(object):
         self.manifest_filename = manifest_filename
         self.manifest_root = manifest_root
         self.output_filename = output_filename
+        # Convert to the format ZipInfo expects
+        t = datetime.utcfromtimestamp(timestamp)
+        self.timestamp_tuple = t.timetuple()[0:6]
         self.zip_safe = zip_safe
 
         self.compression = zipfile.ZIP_DEFLATED
@@ -177,7 +182,8 @@ class PythonArchive(object):
         # Insert boilerplate (might be beginning, middle or end)
         output_lines[idx:idx] = [boilerplate_contents]
         contents = ''.join(output_lines).encode('latin-1')
-        return stored_resource.StoredContent('__main__.py', contents)
+        return stored_resource.StoredContent(
+            '__main__.py', self.timestamp_tuple, contents)
 
     def scan_manifest(self, manifest):
         """Return a dict of StoredResources based on an input manifest.
@@ -198,18 +204,18 @@ class PythonArchive(object):
         # Include some files that every .par file needs at runtime
         stored_resources = {}
         for support_file in _runtime_support_files:
-            resource = fetch_support_file(support_file)
-            stored_filename = resource.stored_filename
+            resource = fetch_support_file(support_file, self.timestamp_tuple)
+            stored_filename = resource.zipinfo.filename
             stored_resources[stored_filename] = resource
 
         # Scan manifest
         for stored_path, local_path in manifest.items():
             if local_path is None:
                 stored_resources[stored_path] = stored_resource.EmptyFile(
-                    stored_path)
+                    stored_path, self.timestamp_tuple)
             else:
                 stored_resources[stored_path] = stored_resource.StoredFile(
-                    stored_path, local_path)
+                    stored_path, self.timestamp_tuple, local_path)
 
         # Copy main entry point to well-known name
         if '__main__.py' in stored_resources:
@@ -227,7 +233,7 @@ class PythonArchive(object):
                               stored_filename)
                 continue
             stored_resources[stored_filename] = stored_resource.EmptyFile(
-                stored_filename)
+                stored_filename, self.timestamp_tuple)
 
         return stored_resources
 
@@ -252,7 +258,7 @@ class PythonArchive(object):
         with zipfile.ZipFile(temp_parfile, 'w', self.compression) as z:
             items = sorted(stored_resources.items())
             for relative_path, resource in items:
-                assert resource.stored_filename == relative_path
+                assert resource.zipinfo.filename == relative_path
                 resource.store(z)
 
     def create_final_from_temp(self, temp_parfile_name):
@@ -269,11 +275,12 @@ def remove_if_present(filename):
         os.remove(filename)
 
 
-def fetch_support_file(name):
+def fetch_support_file(name, timestamp_tuple):
     """Read a file from the runtime package
 
     Args:
         name: filename in runtime package's directory
+        timestamp_tuple: Stored timestamp, as ZipInfo tuple
 
     Returns:
         A StoredResource representing the content of that file
@@ -285,4 +292,5 @@ def fetch_support_file(name):
     if content is None:
         raise error.Error(
             'Internal error: Can\'t find runtime support file [%s]' % name)
-    return stored_resource.StoredContent(stored_filename, content)
+    return stored_resource.StoredContent(
+        stored_filename, timestamp_tuple, content)
