@@ -184,3 +184,12 @@ par_binary(
     ("shadow", "//tests:package_shadow/main", "tests/package_shadow/main"),
     ("version", "//tests:package_f/f", "tests/package_f/f"),
 ]]
+
+# Test target in external workspace
+sh_test(
+    name = "test_compiler_label_wrapper",
+    srcs = ["test_compiler_label_wrapper.sh"],
+    data = [
+        "@test_workspace//:test_compiler_label.par",
+    ],
+)
