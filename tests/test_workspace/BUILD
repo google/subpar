@@ -14,13 +14,24 @@
 
 package(default_visibility = ["//visibility:public"])
 
+load("@subpar//:subpar.bzl", "par_binary")
+
 exports_files(["data_file.txt"])
 
+# Part of the tests:external_workspace test
 py_library(
     name = "package_external_lib/external_lib",
     srcs = [
         # This intentionally DOES NOT have __init__.py listed
         "package_external_lib/external_lib.py",
     ],
+    srcs_version = "PY2AND3",
+)
+
+# Test that we can actually compile a par_binary outside the subpar workspace.
+par_binary(
+    name = "test_compiler_label",
+    srcs = ["test_compiler_label.py"],
+    main = "test_compiler_label.py",
     srcs_version = "PY2AND3",
 )

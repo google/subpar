@@ -76,9 +76,9 @@ par_binary(
 )
 
 par_binary(
-    name = "package_g/g",
-    srcs = ["package_g/g.py"],
-    main = "package_g/g.py",
+    name = "package_boilerplate/main",
+    srcs = ["package_boilerplate/main.py"],
+    main = "package_boilerplate/main.py",
     srcs_version = "PY2AND3",
 )
 
@@ -179,8 +179,17 @@ par_binary(
         "tests/package_import_roots/import_roots",
     ),
     ("indirect_dependency", "//tests:package_c/c", "tests/package_c/c"),
-    ("main_boilerplate", "//tests:package_g/g", "tests/package_g/g"),
+    ("main_boilerplate", "//tests:package_boilerplate/main", "tests/package_boilerplate/main"),
     ("pkg_resources", "//tests:package_pkg_resources/main", "tests/package_pkg_resources/main"),
     ("shadow", "//tests:package_shadow/main", "tests/package_shadow/main"),
     ("version", "//tests:package_f/f", "tests/package_f/f"),
 ]]
+
+# Test target in external workspace
+sh_test(
+    name = "test_compiler_label_wrapper",
+    srcs = ["test_compiler_label_wrapper.sh"],
+    data = [
+        "@test_workspace//:test_compiler_label.par",
+    ],
+)

@@ -189,7 +189,7 @@ def par_binary(name, **kwargs):
     See [py_binary](http://www.bazel.io/docs/be/python.html#py_binary)
     for arguments and usage.
     """
-    compiler = kwargs.pop('compiler', DEFAULT_COMPILER)
+    compiler = kwargs.pop('compiler', None)
     zip_safe = kwargs.pop('zip_safe', True)
     native.py_binary(name=name, **kwargs)
 
@@ -216,7 +216,7 @@ def par_test(name, **kwargs):
     Just like par_binary, but for py_test instead of py_binary.  Useful if you
     specifically need to test a module's behaviour when used in a .par binary.
     """
-    compiler = kwargs.pop('compiler', DEFAULT_COMPILER)
+    compiler = kwargs.pop('compiler', None)
     zip_safe = kwargs.pop('zip_safe', True)
     native.py_test(name=name, **kwargs)
 

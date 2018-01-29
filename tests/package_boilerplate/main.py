@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: latin-1
 
-# Test __future__ imports
-from __future__ import print_function
-
-"""Integration test program G for Subpar.
+# Test module docstring before boilerplate insertion
+"""Integration test program for Subpar.
 
 Test bootstrap interaction with __future__ imports and source file encodings.
 """
+
+# Test __future__ imports
+from __future__ import print_function
+
 
 # Test the source file encoding specification above.  See PEP 263 for
 # details.  In the line below, this source file contains a byte
