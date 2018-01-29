@@ -16,12 +16,12 @@
 
 See: http://www.pkware.com/documents/casestudies/APPNOTE.TXT
 
-TODO: Timestamp normalization
 TODO: Python source compilation
 TODO: ELF binary stripping
 """
 
 import os
+import zipfile
 
 
 class StoredResource(object):
@@ -29,11 +29,12 @@ class StoredResource(object):
 
     Args:
         stored_filename: Relative path to store content under
+        timestamp_tuple: Stored timestamp, as ZipInfo tuple
     """
 
-    def __init__(self, stored_filename):
+    def __init__(self, stored_filename, timestamp_tuple):
         assert not os.path.isabs(stored_filename)
-        self.stored_filename = stored_filename
+        self.zipinfo = zipfile.ZipInfo(stored_filename, timestamp_tuple)
 
     def store(self, unused_zip_file):
         """Write resource to zip file"""
@@ -43,27 +44,29 @@ class StoredResource(object):
 class StoredFile(StoredResource):
     """One file that will be stored in the final archive."""
 
-    def __init__(self, stored_filename, local_filename):
-        StoredResource.__init__(self, stored_filename)
+    def __init__(self, stored_filename, timestamp_tuple, local_filename):
+        StoredResource.__init__(self, stored_filename, timestamp_tuple)
         self.local_filename = local_filename
 
     def store(self, zip_file):
-        zip_file.write(self.local_filename, self.stored_filename)
+        with open(self.local_filename, 'rb') as f:
+            content = f.read()
+        zip_file.writestr(self.zipinfo, content)
 
 
 class StoredContent(StoredResource):
     """Literal byte string to store in a par file."""
 
-    def __init__(self, stored_filename, content):
-        StoredResource.__init__(self, stored_filename)
+    def __init__(self, stored_filename, timestamp_tuple, content):
+        StoredResource.__init__(self, stored_filename, timestamp_tuple)
         self.content = content
 
     def store(self, zip_file):
-        zip_file.writestr(self.stored_filename, self.content)
+        zip_file.writestr(self.zipinfo, self.content)
 
 
 class EmptyFile(StoredContent):
     """An empty file included in the par file, usually an __init__.py file."""
 
-    def __init__(self, stored_filename):
-        StoredContent.__init__(self, stored_filename, b'')
+    def __init__(self, stored_filename, timestamp_tuple):
+        StoredContent.__init__(self, stored_filename, timestamp_tuple, b'')

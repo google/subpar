@@ -23,6 +23,9 @@ from subpar.compiler import test_utils
 class StoredResourceTest(unittest.TestCase):
     """Test PythonArchive class"""
 
+    def setUp(self):
+        self.date_time_tuple = (1980, 1, 1, 0, 0, 0)
+
     def _write_and_check(self, resource, name, expected_content):
         # Write zipfile
         tmpdir = test_utils.mkdtemp()
@@ -34,6 +37,7 @@ class StoredResourceTest(unittest.TestCase):
         # Read and validate zipfile
         z = zipfile.ZipFile(zipfile_name, 'r')
         self.assertEqual(z.namelist(), [name])
+        self.assertEqual(z.getinfo(name).date_time, self.date_time_tuple)
         with z.open(name) as infile:
             actual_content = infile.read()
         self.assertEqual(expected_content, actual_content)
@@ -43,18 +47,20 @@ class StoredResourceTest(unittest.TestCase):
         expected_content = b'Contents of foo/bar'
         name = 'foo/bar'
         f = test_utils.temp_file(expected_content)
-        resource = stored_resource.StoredFile(name, f.name)
+        resource = stored_resource.StoredFile(
+            name, self.date_time_tuple, f.name)
         self._write_and_check(resource, name, expected_content)
 
     def test_StoredContent(self):
         expected_content = b'Contents of foo/bar'
         name = 'foo/bar'
-        resource = stored_resource.StoredContent(name, expected_content)
+        resource = stored_resource.StoredContent(
+            name, self.date_time_tuple, expected_content)
         self._write_and_check(resource, name, expected_content)
 
     def test_EmptyFile(self):
         name = 'foo/bar'
-        resource = stored_resource.EmptyFile(name)
+        resource = stored_resource.EmptyFile(name, self.date_time_tuple)
         self._write_and_check(resource, name, b'')
 
 
