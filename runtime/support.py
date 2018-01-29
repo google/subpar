@@ -106,6 +106,7 @@ def _extract_files(archive_path):
         Directory where contents were extracted to.
     """
     extract_dir = tempfile.mkdtemp()
+
     def _extract_files_cleanup():
         shutil.rmtree(extract_dir, ignore_errors=True)
     atexit.register(_extract_files_cleanup)
@@ -270,6 +271,7 @@ def _setup_pkg_resources(pkg_resources_name):
                     pkg_resources.working_set.add(dist, entry, insert=False,
                                                   replace=True)
 
+
 def _initialize_import_path(import_roots, import_prefix):
     """Add extra entries to PYTHONPATH so that modules can be imported."""
     # We try to match to order of Bazel's stub
@@ -313,7 +315,7 @@ def setup(import_roots, zip_safe):
         # there for imports.
         sys.path[0] = extract_dir
         import_prefix = extract_dir
-    else: # Import directly from .par file
+    else:  # Import directly from .par file
         extract_dir = None
         import_prefix = archive_path
 
