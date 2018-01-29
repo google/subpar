@@ -160,6 +160,15 @@ class PythonArchiveTest(unittest.TestCase):
             # Future import
             (b'from __future__ import print_function\n',
              b'from __future__ import print_function\nBOILERPLATE\n'),
+            # Module docstrings
+            (b"'Single-quote Module docstring'\n",
+             b"'Single-quote Module docstring'\nBOILERPLATE\n"),
+            (b'"Double-quote Module docstring"\n',
+             b'"Double-quote Module docstring"\nBOILERPLATE\n'),
+            (b"'''Triple-single-quote module \"'\n\n docstring'''\n",
+             b"'''Triple-single-quote module \"'\n\n docstring'''\nBOILERPLATE\n"),
+            (b'"""Triple-double-quote module "\'\n\n docstring"""\n',
+             b'"""Triple-double-quote module "\'\n\n docstring"""\nBOILERPLATE\n'),
         ]
         for main_content, expected in cases:
             with test_utils.temp_file(main_content) as main_file:
