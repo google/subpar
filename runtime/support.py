@@ -300,7 +300,7 @@ def setup(import_roots, zip_safe):
         warnings.warn('Failed to initialize .par file runtime support',
                       UserWarning)
         return False
-    if sys.path[0] != archive_path:
+    if os.path.abspath(sys.path[0]) != os.path.abspath(archive_path):
         warnings.warn('Failed to initialize .par file runtime support. ' +
                       'archive_path was %r, sys.path was %r' % (
                           archive_path, sys.path),
