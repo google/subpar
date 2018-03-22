@@ -74,7 +74,7 @@ def _parfile_impl(ctx):
     zip_safe = ctx.attr.zip_safe
 
     # Assemble command line for .par compiler
-    args = [
+    args = ctx.attr.compiler_args + [
         '--manifest_file', sources_file.path,
         '--outputpar', ctx.outputs.executable.path,
         '--stub_file', stub_file,
@@ -123,6 +123,7 @@ parfile_attrs = {
         executable = True,
         cfg = "host",
     ),
+    "compiler_args": attr.string_list(default = []),
     "zip_safe": attr.bool(default=True),
 }
 
@@ -190,6 +191,7 @@ def par_binary(name, **kwargs):
     for arguments and usage.
     """
     compiler = kwargs.pop('compiler', None)
+    compiler_args = kwargs.pop('compiler_args', [])
     zip_safe = kwargs.pop('zip_safe', True)
     native.py_binary(name=name, **kwargs)
 
@@ -200,6 +202,7 @@ def par_binary(name, **kwargs):
     testonly = kwargs.get('testonly', False)
     parfile(
         compiler=compiler,
+        compiler_args=compiler_args,
         default_python_version=default_python_version,
         imports=imports,
         main=main,
