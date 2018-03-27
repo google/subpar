@@ -88,6 +88,7 @@ def _parfile_impl(ctx):
         executable=ctx.executable.compiler,
         arguments=args,
         mnemonic='PythonCompile',
+        use_default_shell_env=True,
     )
 
     # .par file itself has no runfiles and no providers
