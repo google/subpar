@@ -14,6 +14,7 @@
 
 import os
 import subprocess
+import sys
 import time
 import unittest
 import zipfile
@@ -45,7 +46,7 @@ class PythonArchiveTest(unittest.TestCase):
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
         self.output_filename = os.path.join(self.output_dir, 'output.par')
-        self.interpreter = '/usr/bin/python2'
+        self.interpreter = sys.executable
         self.import_roots = []
         self.date_time_tuple = (1980, 1, 1, 0, 0, 0)
         self.timestamp = 315532800

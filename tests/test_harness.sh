@@ -41,7 +41,7 @@ TMP_EXECUTABLE="$TEST_TMPDIR"/$(basename "$EXECUTABLE")
 # Compare list of files in zipfile with expected list
 if [ "$PAR" -eq 1 ]; then
   diff \
-    <(unzip -l "$EXECUTABLE" | awk '{print $NF}' | head -n -2 | tail -n +4) \
+    <(unzip -l -q -q "$EXECUTABLE" | awk '{print $NF}') \
     "$FILELIST" \
     || die 'FATAL: zipfile contents do not match expected'
 fi
