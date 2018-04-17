@@ -16,8 +16,13 @@
 
 set -euo pipefail
 
+function die {
+  echo "$*" 1>&2
+  exit 1
+}
+
 # Find various tools in environment
-PYTHON2=$(which python)
+PYTHON2=$(which python||true)
 if [ -z "${PYTHON2}" ]; then
   PYTHON2=$(which python2)
 fi
@@ -29,22 +34,21 @@ fi
 #   https://www.python.org/dev/peps/pep-0394/
 if [ -n "${PYTHON2}" ]; then
   VERSION=$("${PYTHON2}" -V 2>&1)
-  if ! expr match "${VERSION}" "Python 2." >/dev/null ; then
+  if ! expr "${VERSION}" : "Python 2." >/dev/null ; then
     PYTHON2=
   fi
 fi
 
-PYTHON3=$(which python3)
+PYTHON3=$(which python3||true)
 
-VIRTUALENV=$(which virtualenv)
+VIRTUALENV=$(which virtualenv) || die "virtualenv not installed"
 VIRTUALENVDIR=$(dirname $0)/.env
 # Virtualenv `activate` needs $PS1 set
 PS1='$ '
 
 # Must have at least one Python interpreter to test
 if [ -z "${PYTHON2}" -a -z "${PYTHON3}" ]; then
-  echo "ERROR: Could not find Python 2 or 3 interpreter on $PATH" 1>&2
-  exit 1
+  die "Could not find Python 2 or 3 interpreter on $PATH"
 fi
 
 # Run test matrix
