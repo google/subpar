@@ -29,6 +29,7 @@ See also https://www.python.org/dev/peps/pep-0441/
 """
 
 from datetime import datetime
+import contextlib
 import io
 import logging
 import os
@@ -274,7 +275,7 @@ class PythonArchive(object):
         """
 
         logging.debug('Storing Files...')
-        with zipfile.ZipFile(temp_parfile, 'w', self.compression) as z:
+        with contextlib.closing(zipfile.ZipFile(temp_parfile, 'w', self.compression)) as z:
             items = sorted(stored_resources.items())
             for relative_path, resource in items:
                 assert resource.zipinfo.filename == relative_path
