@@ -64,7 +64,8 @@ _boilerplate_insertion_regex = re.compile('''(?sx)
             ('[^'].*?') | # module doc comment form 1
             ("[^"].*?") | # module doc comment form 2
             (\'\'\'.*?(\'\'\')) | # module doc comment form 3
-            (""".*?""") # module doc comment form 4
+            (""".*?""") | # module doc comment form 4
+            (r""".*?""") # module doc comment form 4
         )
         [\\r\\n]+ # end of line(s) for Mac, Unix and/or Windows
     )*
