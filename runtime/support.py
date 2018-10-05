@@ -95,7 +95,7 @@ def _find_archive():
     return archive_path
 
 
-def _extract_files(archive_path):
+def _extract_files(archive_path, no_remove):
     """Extract the contents of this .par file to disk.
 
     This creates a temporary directory, and registers an atexit
@@ -107,9 +107,10 @@ def _extract_files(archive_path):
     """
     extract_dir = tempfile.mkdtemp()
 
-    def _extract_files_cleanup():
-        shutil.rmtree(extract_dir, ignore_errors=True)
-    atexit.register(_extract_files_cleanup)
+    if not no_remove:
+        def _extract_files_cleanup():
+            shutil.rmtree(extract_dir, ignore_errors=True)
+        atexit.register(_extract_files_cleanup)
     _log('# extracting %s to %s' % (archive_path, extract_dir))
 
     zip_file = zipfile.ZipFile(archive_path, mode='r')
@@ -282,7 +283,7 @@ def _initialize_import_path(import_roots, import_prefix):
     _log('# adding %s to sys.path' % full_roots)
 
 
-def setup(import_roots, zip_safe):
+def setup(import_roots, zip_safe, no_remove):
     """Initialize subpar run-time support
 
     Args:
@@ -309,7 +310,7 @@ def setup(import_roots, zip_safe):
 
     # Extract files to disk if necessary
     if not zip_safe:
-        extract_dir = _extract_files(archive_path)
+        extract_dir = _extract_files(archive_path, no_remove)
         # sys.path[0] is the name of the executing .par file.  Point
         # it to the extract directory instead, so that Python searches
         # there for imports.

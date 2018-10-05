@@ -101,7 +101,7 @@ class SupportTest(unittest.TestCase):
 
     def test__extract_files(self):
         # Extract zipfile
-        extract_path = support._extract_files(self.zipfile_name)
+        extract_path = support._extract_files(self.zipfile_name, False)
 
         # Check results
         self.assertTrue(os.path.isdir(extract_path))
@@ -140,7 +140,7 @@ class SupportTest(unittest.TestCase):
             mock_sys_path[0] = self.zipfile_name
             sys.path = mock_sys_path
             success = support.setup(import_roots=['some_root', 'another_root'],
-                                    zip_safe=True)
+                                    zip_safe=True, no_remove=False)
             self.assertTrue(success)
         finally:
             sys.path = old_sys_path
@@ -165,7 +165,8 @@ class SupportTest(unittest.TestCase):
             mock_sys_path = list(sys.path)
             mock_sys_path[0] = self.zipfile_name
             sys.path = mock_sys_path
-            success = support.setup(import_roots=['some_root'], zip_safe=False)
+            success = support.setup(import_roots=['some_root'], zip_safe=False,
+                                    no_remove=False)
             self.assertTrue(success)
         finally:
             sys.path = old_sys_path
