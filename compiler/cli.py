@@ -60,6 +60,9 @@ def make_command_line_parser():
         '--stub_file',
         help='Read imports and interpreter path from the specified stub file',
         required=True)
+    parser.add_argument(
+        '--interpreter',
+        help='Interpreter to use instead of determining it from the stub file')
     # The default timestamp is "Jan 1 1980 00:00:00 utc", which is the
     # earliest time that can be stored in a zip file.
     #
@@ -137,6 +140,9 @@ def main(argv):
 
     # Parse information from stub file that's too hard to compute in Skylark
     import_roots, interpreter = parse_stub(args.stub_file)
+
+    if args.interpreter:
+        interpreter = args.interpreter
 
     par = python_archive.PythonArchive(
         main_filename=args.main_filename,
