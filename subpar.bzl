@@ -26,19 +26,19 @@ def _parfile_impl(ctx):
     elif len(py_files) > 1:
         fail("Expected exactly one .py file, found these: [%s]" % py_files, "main")
     main_py_file = py_files[0]
-    if main_py_file not in ctx.attr.src.data_runfiles.files:
+    if main_py_file not in ctx.attr.src.data_runfiles.files.to_list():
         fail("Main entry point [%s] not listed in srcs" % main_py_file, "main")
 
     # Find the list of things that must be built before this thing is built
     # TODO: also handle ctx.attr.src.data_runfiles.symlinks
-    inputs = list(ctx.attr.src.default_runfiles.files)
+    inputs = ctx.attr.src.default_runfiles.files.to_list()
 
     # Make a manifest of files to store in the .par file.  The
     # runfiles manifest is not quite right, so we make our own.
     sources_map = {}
 
     # First, add the zero-length __init__.py files
-    for empty in ctx.attr.src.default_runfiles.empty_filenames:
+    for empty in ctx.attr.src.default_runfiles.empty_filenames.to_list():
         stored_path = _prepend_workspace(empty, ctx)
         local_path = ""
         sources_map[stored_path] = local_path
@@ -70,7 +70,6 @@ def _parfile_impl(ctx):
     # Inputs to the action, but don't actually get stored in the .par file
     extra_inputs = [
         sources_file,
-        ctx.attr.src.files_to_run.executable,
         ctx.attr.src.files_to_run.runfiles_manifest,
     ]
 
@@ -90,6 +89,7 @@ def _parfile_impl(ctx):
     ]
     ctx.actions.run(
         inputs = inputs + extra_inputs,
+        tools = [ctx.attr.src.files_to_run.executable],
         outputs = [ctx.outputs.executable],
         progress_message = "Building par file %s" % ctx.label,
         executable = ctx.executable.compiler,
