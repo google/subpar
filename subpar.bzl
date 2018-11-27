@@ -14,8 +14,6 @@
 
 """Build self-contained python executables."""
 
-load("//:debug.bzl", "dump")
-
 DEFAULT_COMPILER = "//compiler:compiler.par"
 
 def _parfile_impl(ctx):
@@ -58,11 +56,11 @@ def _parfile_impl(ctx):
     sources_content = "\n".join(sources_lines) + "\n"
 
     # Write the list to the manifest file
-    sources_file = ctx.new_file(ctx.label.name + "_SOURCES")
-    ctx.file_action(
+    sources_file = ctx.actions.declare_file(ctx.label.name + "_SOURCES")
+    ctx.actions.write(
         output = sources_file,
         content = sources_content,
-        executable = False,
+        is_executable = False,
     )
 
     # Find the list of directories to add to sys.path
@@ -90,7 +88,7 @@ def _parfile_impl(ctx):
         str(zip_safe),
         main_py_file.path,
     ]
-    ctx.action(
+    ctx.actions.run(
         inputs = inputs + extra_inputs,
         outputs = [ctx.outputs.executable],
         progress_message = "Building par file %s" % ctx.label,
@@ -124,8 +122,7 @@ parfile_attrs = {
     "src": attr.label(mandatory = True),
     "main": attr.label(
         mandatory = True,
-        allow_files = True,
-        single_file = True,
+        allow_single_file = True,
     ),
     "imports": attr.string_list(default = []),
     "default_python_version": attr.string(mandatory = True),
