@@ -14,51 +14,54 @@
 
 """Build self-contained python executables."""
 
-load("//:debug.bzl", "dump")
-
-DEFAULT_COMPILER = '//compiler:compiler.par'
+DEFAULT_COMPILER = "//compiler:compiler.par"
 
 def _parfile_impl(ctx):
     """Implementation of parfile() rule"""
+
     # Find the main entry point
     py_files = ctx.files.main
     if len(py_files) == 0:
-        fail('Expected exactly one .py file, found none', 'main')
+        fail("Expected exactly one .py file, found none", "main")
     elif len(py_files) > 1:
-        fail('Expected exactly one .py file, found these: [%s]' % py_files, 'main')
+        fail("Expected exactly one .py file, found these: [%s]" % py_files, "main")
     main_py_file = py_files[0]
-    if main_py_file not in ctx.attr.src.data_runfiles.files:
-        fail('Main entry point [%s] not listed in srcs' % main_py_file, 'main')
+    if main_py_file not in ctx.attr.src.data_runfiles.files.to_list():
+        fail("Main entry point [%s] not listed in srcs" % main_py_file, "main")
 
     # Find the list of things that must be built before this thing is built
     # TODO: also handle ctx.attr.src.data_runfiles.symlinks
-    inputs = list(ctx.attr.src.default_runfiles.files)
+    inputs = ctx.attr.src.default_runfiles.files.to_list()
 
     # Make a manifest of files to store in the .par file.  The
     # runfiles manifest is not quite right, so we make our own.
     sources_map = {}
+
     # First, add the zero-length __init__.py files
-    for empty in ctx.attr.src.default_runfiles.empty_filenames:
+    for empty in ctx.attr.src.default_runfiles.empty_filenames.to_list():
         stored_path = _prepend_workspace(empty, ctx)
-        local_path = ''
+        local_path = ""
         sources_map[stored_path] = local_path
+
     # Now add the regular (source and generated) files
     for input_file in inputs:
         stored_path = _prepend_workspace(input_file.short_path, ctx)
         local_path = input_file.path
         sources_map[stored_path] = local_path
+
     # Now make a nice sorted list
     sources_lines = []
-    for k,v in sorted(sources_map.items()):
-        sources_lines.append('%s %s' % (k, v))
-    sources_content = '\n'.join(sources_lines) + '\n'
+    for k, v in sorted(sources_map.items()):
+        sources_lines.append("%s %s" % (k, v))
+    sources_content = "\n".join(sources_lines) + "\n"
 
     # Write the list to the manifest file
-    sources_file = ctx.new_file(ctx.label.name + '_SOURCES')
-    ctx.file_action(
-        output=sources_file,
-        content=sources_content,
-        executable=False)
+    sources_file = ctx.actions.declare_file(ctx.label.name + "_SOURCES")
+    ctx.actions.write(
+        output = sources_file,
+        content = sources_content,
+        is_executable = False,
+    )
 
     # Find the list of directories to add to sys.path
     # TODO(b/29227737): Use 'imports' provider from Bazel
@@ -67,28 +70,32 @@ def _parfile_impl(ctx):
     # Inputs to the action, but don't actually get stored in the .par file
     extra_inputs = [
         sources_file,
-        ctx.attr.src.files_to_run.executable,
         ctx.attr.src.files_to_run.runfiles_manifest,
-        ]
+    ]
 
     zip_safe = ctx.attr.zip_safe
 
     # Assemble command line for .par compiler
     args = ctx.attr.compiler_args + [
-        '--manifest_file', sources_file.path,
-        '--outputpar', ctx.outputs.executable.path,
-        '--stub_file', stub_file,
-        '--zip_safe', str(zip_safe),
+        "--manifest_file",
+        sources_file.path,
+        "--outputpar",
+        ctx.outputs.executable.path,
+        "--stub_file",
+        stub_file,
+        "--zip_safe",
+        str(zip_safe),
         main_py_file.path,
     ]
-    ctx.action(
-        inputs=inputs + extra_inputs,
-        outputs=[ctx.outputs.executable],
-        progress_message='Building par file %s' % ctx.label,
-        executable=ctx.executable.compiler,
-        arguments=args,
-        mnemonic='PythonCompile',
-        use_default_shell_env=True,
+    ctx.actions.run(
+        inputs = inputs + extra_inputs,
+        tools = [ctx.attr.src.files_to_run.executable],
+        outputs = [ctx.outputs.executable],
+        progress_message = "Building par file %s" % ctx.label,
+        executable = ctx.executable.compiler,
+        arguments = args,
+        mnemonic = "PythonCompile",
+        use_default_shell_env = True,
     )
 
     # .par file itself has no runfiles and no providers
@@ -96,26 +103,26 @@ def _parfile_impl(ctx):
 
 def _prepend_workspace(path, ctx):
     """Given a path, prepend the workspace name as the parent directory"""
+
     # It feels like there should be an easier, less fragile way.
-    if path.startswith('../'):
+    if path.startswith("../"):
         # External workspace, for example
         # '../protobuf/python/google/protobuf/any_pb2.py'
-        stored_path = path[len('../'):]
-    elif path.startswith('external/'):
+        stored_path = path[len("../"):]
+    elif path.startswith("external/"):
         # External workspace, for example
         # 'external/protobuf/python/__init__.py'
-        stored_path = path[len('external/'):]
+        stored_path = path[len("external/"):]
     else:
         # Main workspace, for example 'mypackage/main.py'
-        stored_path = ctx.workspace_name + '/' + path
+        stored_path = ctx.workspace_name + "/" + path
     return stored_path
 
 parfile_attrs = {
     "src": attr.label(mandatory = True),
     "main": attr.label(
         mandatory = True,
-        allow_files = True,
-        single_file = True,
+        allow_single_file = True,
     ),
     "imports": attr.string_list(default = []),
     "default_python_version": attr.string(mandatory = True),
@@ -125,7 +132,7 @@ parfile_attrs = {
         cfg = "host",
     ),
     "compiler_args": attr.string_list(default = []),
-    "zip_safe": attr.bool(default=True),
+    "zip_safe": attr.bool(default = True),
 }
 
 # Rule to create a parfile given a py_binary() as input
@@ -191,27 +198,27 @@ def par_binary(name, **kwargs):
     See [py_binary](http://www.bazel.io/docs/be/python.html#py_binary)
     for arguments and usage.
     """
-    compiler = kwargs.pop('compiler', None)
-    compiler_args = kwargs.pop('compiler_args', [])
-    zip_safe = kwargs.pop('zip_safe', True)
-    native.py_binary(name=name, **kwargs)
+    compiler = kwargs.pop("compiler", None)
+    compiler_args = kwargs.pop("compiler_args", [])
+    zip_safe = kwargs.pop("zip_safe", True)
+    native.py_binary(name = name, **kwargs)
 
-    main = kwargs.get('main', name + '.py')
-    imports = kwargs.get('imports')
-    default_python_version = kwargs.get('default_python_version', 'PY2')
-    visibility = kwargs.get('visibility')
-    testonly = kwargs.get('testonly', False)
+    main = kwargs.get("main", name + ".py")
+    imports = kwargs.get("imports")
+    default_python_version = kwargs.get("default_python_version", "PY2")
+    visibility = kwargs.get("visibility")
+    testonly = kwargs.get("testonly", False)
     parfile(
-        compiler=compiler,
-        compiler_args=compiler_args,
-        default_python_version=default_python_version,
-        imports=imports,
-        main=main,
-        name=name + '.par',
-        src=name,
-        testonly=testonly,
-        visibility=visibility,
-        zip_safe=zip_safe,
+        compiler = compiler,
+        compiler_args = compiler_args,
+        default_python_version = default_python_version,
+        imports = imports,
+        main = main,
+        name = name + ".par",
+        src = name,
+        testonly = testonly,
+        visibility = visibility,
+        zip_safe = zip_safe,
     )
 
 def par_test(name, **kwargs):
@@ -220,23 +227,23 @@ def par_test(name, **kwargs):
     Just like par_binary, but for py_test instead of py_binary.  Useful if you
     specifically need to test a module's behaviour when used in a .par binary.
     """
-    compiler = kwargs.pop('compiler', None)
-    zip_safe = kwargs.pop('zip_safe', True)
-    native.py_test(name=name, **kwargs)
+    compiler = kwargs.pop("compiler", None)
+    zip_safe = kwargs.pop("zip_safe", True)
+    native.py_test(name = name, **kwargs)
 
-    main = kwargs.get('main', name + '.py')
-    imports = kwargs.get('imports')
-    default_python_version = kwargs.get('default_python_version', 'PY2')
-    visibility = kwargs.get('visibility')
-    testonly = kwargs.get('testonly', True)
+    main = kwargs.get("main", name + ".py")
+    imports = kwargs.get("imports")
+    default_python_version = kwargs.get("default_python_version", "PY2")
+    visibility = kwargs.get("visibility")
+    testonly = kwargs.get("testonly", True)
     parfile_test(
-        compiler=compiler,
-        default_python_version=default_python_version,
-        imports=imports,
-        main=main,
-        name=name + '.par',
-        src=name,
-        testonly=testonly,
-        visibility=visibility,
-        zip_safe=zip_safe,
+        compiler = compiler,
+        default_python_version = default_python_version,
+        imports = imports,
+        main = main,
+        name = name + ".par",
+        src = name,
+        testonly = testonly,
+        visibility = visibility,
+        zip_safe = zip_safe,
     )
