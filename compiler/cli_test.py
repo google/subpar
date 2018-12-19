@@ -42,6 +42,19 @@ class CliTest(unittest.TestCase):
         ])
         self.assertEqual(args.manifest_file, 'bar')
 
+    def test_make_command_line_parser_for_interprerter(self):
+        parser = cli.make_command_line_parser()
+        args = parser.parse_args([
+            '--manifest_file=bar',
+            '--manifest_root=bazz',
+            '--outputpar=baz',
+            '--stub_file=quux',
+            '--zip_safe=False',
+            '--interpreter=foobar',
+            'foo',
+        ])
+        self.assertEqual(args.interpreter, 'foobar')
+
     def test_stub(self):
         valid_cases = [
             # Empty list
