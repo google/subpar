@@ -52,44 +52,46 @@ if [ -z "${PYTHON2}" -a -z "${PYTHON3}" ]; then
 fi
 
 # Run test matrix
-for PYTHON_INTERPRETER in "${PYTHON2}" "${PYTHON3}"; do
-  if [ -z "${PYTHON_INTERPRETER}" ] ; then
-    continue;
-  fi
+for BAZEL_ARGS in "" "--all_incompatible_changes"; do
+  for PYTHON_INTERPRETER in "${PYTHON2}" "${PYTHON3}"; do
+    if [ -z "${PYTHON_INTERPRETER}" ] ; then
+      continue;
+    fi
 
-  if [ "${PYTHON_INTERPRETER}" = "${PYTHON3}" ]; then
-    BAZEL_TEST="bazel test --define subpar_test_python_version=3"
-  else
-    BAZEL_TEST="bazel test"
-  fi
+    if [ "${PYTHON_INTERPRETER}" = "${PYTHON3}" ]; then
+      BAZEL_TEST="bazel test --define subpar_test_python_version=3 ${BAZEL_ARGS}"
+    else
+      BAZEL_TEST="bazel test ${BAZEL_ARGS}"
+    fi
 
-  echo "Testing ${PYTHON_INTERPRETER}"
-  bazel clean
-  ${BAZEL_TEST} --python_path="${PYTHON_INTERPRETER}" --test_output=errors //...
-
-  if [ -n "${VIRTUALENV}" ]; then
-    echo "Testing bare virtualenv"
-    rm -rf "${VIRTUALENVDIR}"
-    "${VIRTUALENV}" \
-      -p "${PYTHON_INTERPRETER}" \
-      --no-setuptools --no-pip --no-wheel \
-      "${VIRTUALENVDIR}"
-    source "${VIRTUALENVDIR}"/bin/activate
+    echo "Testing ${PYTHON_INTERPRETER}"
     bazel clean
-    ${BAZEL_TEST} --python_path=$(which python) --test_output=errors //...
-    deactivate
+    ${BAZEL_TEST} --python_path="${PYTHON_INTERPRETER}" --test_output=errors //...
 
-    for REQUIREMENTS in tests/requirements-test-*.txt; do
-      echo "Testing virtualenv ${REQUIREMENTS}"
+    if [ -n "${VIRTUALENV}" ]; then
+      echo "Testing bare virtualenv"
       rm -rf "${VIRTUALENVDIR}"
       "${VIRTUALENV}" \
         -p "${PYTHON_INTERPRETER}" \
+        --no-setuptools --no-pip --no-wheel \
         "${VIRTUALENVDIR}"
       source "${VIRTUALENVDIR}"/bin/activate
-      pip install -r "${REQUIREMENTS}"
       bazel clean
       ${BAZEL_TEST} --python_path=$(which python) --test_output=errors //...
       deactivate
-    done
-  fi
+
+      for REQUIREMENTS in tests/requirements-test-*.txt; do
+        echo "Testing virtualenv ${REQUIREMENTS}"
+        rm -rf "${VIRTUALENVDIR}"
+        "${VIRTUALENV}" \
+          -p "${PYTHON_INTERPRETER}" \
+          "${VIRTUALENVDIR}"
+        source "${VIRTUALENVDIR}"/bin/activate
+        pip install -r "${REQUIREMENTS}"
+        bazel clean
+        ${BAZEL_TEST} --python_path=$(which python) --test_output=errors //...
+        deactivate
+      done
+    fi
+  done
 done
