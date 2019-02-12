@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -215,6 +216,23 @@ class PythonArchiveTest(unittest.TestCase):
             self.assertEqual(
                 resources['subpar/runtime/support.py'].local_filename,
                 shadowing_support_file.name)
+
+    def test_scan_manifest_directory(self):
+        par = self._construct()
+        try:
+            some_dir = test_utils.temp_dir()
+            with open(os.path.join(some_dir, "foo.py"), "w") as f:
+                f.write("foo\n")
+            with open(os.path.join(some_dir, "bar.py"), "w") as f:
+                f.write("bar\n")
+            manifest = {
+                'somedir': some_dir
+            }
+            resources = par.scan_manifest(manifest)
+            self.assertIn('somedir/foo.py', resources)
+            self.assertIn('somedir/bar.py', resources)
+        finally:
+            shutil.rmtree(some_dir)
 
     def test_write_bootstrap(self):
         par = self._construct()

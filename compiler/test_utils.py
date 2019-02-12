@@ -36,3 +36,8 @@ def temp_file(contents, suffix=''):
     t.write(contents)
     t.flush()
     return t
+
+
+def temp_dir():
+    tmpdir = get_test_tmpdir()
+    return tempfile.mkdtemp(dir=tmpdir)
