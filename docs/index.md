@@ -10,7 +10,7 @@
   </ul>
 </nav>
 
-<h2><a href="./debug.html">debug Rules</a></h2>
+<h2><a href="./debug.html" id="debug">debug Rules</a></h2>
 
 <h3>Macros</h3>
 <table class="overview-table">
@@ -32,7 +32,7 @@
     </tr>
   </tbody>
 </table>
-<h2><a href="./subpar.html">Build self-contained python executables.</a></h2>
+<h2><a href="./subpar.html" id="subpar">Build self-contained python executables.</a></h2>
 
 <h3>Rules</h3>
 <table class="overview-table">
