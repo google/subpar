@@ -30,7 +30,7 @@ py_library(
 py_binary(
     name = "compiler",
     srcs = ["compiler.py"],
-    default_python_version = "PY2",
+    python_version = "PY2",
     main = "compiler.py",
     srcs_version = "PY2AND3",
     deps = [":compiler_lib"],
