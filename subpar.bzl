@@ -99,7 +99,7 @@ def _parfile_impl(ctx):
     )
 
     # .par file itself has no runfiles and no providers
-    return struct()
+    return []
 
 def _prepend_workspace(path, ctx):
     """Given a path, prepend the workspace name as the parent directory"""
