@@ -1,9 +1,10 @@
 # To regenerate html docs, run:
-#   ./update_docs.sh
+#   ../update_docs.sh
 
-load("@io_bazel_skydoc//skylark:skylark.bzl", "skylark_doc", "skylark_library")
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@io_bazel_skydoc//skylark:skylark.bzl", "skylark_doc")
 
-skylark_library(
+bzl_library(
     name = "subpar-rules",
     srcs = [
         "@subpar//:debug.bzl",
@@ -16,7 +17,7 @@ skylark_doc(
     format = "markdown",
     overview = True,
     site_root = ".",
-    deps = ["subpar-rules"],
+    srcs = [":subpar-rules"],
 )
 
 skylark_doc(
@@ -24,5 +25,5 @@ skylark_doc(
     format = "html",
     overview = True,
     site_root = ".",
-    deps = ["subpar-rules"],
+    srcs = [":subpar-rules"],
 )

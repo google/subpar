@@ -1,28 +1,40 @@
 workspace(name = "subpar_docs")
 
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
 local_repository(
     name = "subpar",
     path = "..",
 )
 
-# Dependency of skydoc
-git_repository(
-    name = "io_bazel_rules_sass",
-    remote = "https://github.com/bazelbuild/rules_sass.git",
-    tag = "0.0.3",
-)
+# Skydoc / stardoc and dependencies.
 
-load("@io_bazel_rules_sass//sass:sass.bzl", "sass_repositories")
-
-sass_repositories()
-
-# Used to create documentation
 git_repository(
     name = "io_bazel_skydoc",
     remote = "https://github.com/bazelbuild/skydoc.git",
-    commit = "b36d22cc4436a7a7933e36a111bfc00fd494b9fb",
+    commit = "13063139c7c2bca7c725f382fa1e78bdfe93c887",  # 2019-02-27
 )
 
-load("@io_bazel_skydoc//skylark:skylark.bzl", "skydoc_repositories")
+# This initialization comes from Stardoc's WORKSPACE file as of commit
+# 13063139c7c2bca7c725f382fa1e78bdfe93c887.
 
+load("@io_bazel_skydoc//:setup.bzl", "skydoc_repositories")
 skydoc_repositories()
+
+load("@io_bazel_rules_sass//:package.bzl", "rules_sass_dependencies")
+rules_sass_dependencies()
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+node_repositories()
+
+load("@io_bazel_rules_sass//:defs.bzl", "sass_repositories")
+sass_repositories()
+
+# This definition is also needed for (legacy) Skydoc.
+# TODO(#93): Migrate to Stardoc.
+
+git_repository(
+    name = "com_google_protobuf",
+    remote = "https://github.com/protocolbuffers/protobuf.git",
+    commit = "7b28271a61a3da0a37f6fda399b0c4c86464e5b3",  # 2018-11-16
+)
