@@ -30,6 +30,7 @@ See also https://www.python.org/dev/peps/pep-0441/
 
 from datetime import datetime
 import contextlib
+import errno
 import io
 import logging
 import os
@@ -290,9 +291,14 @@ class PythonArchive(object):
 
 
 def remove_if_present(filename):
-    """Delete any existing file"""
-    if os.path.exists(filename):
+    """Delete a file if it exists"""
+    try:
+        # Remove atomically
         os.remove(filename)
+    except OSError as exc:
+        # Ignore failure if file does not exist
+        if exc.errno != errno.ENOENT:
+            raise
 
 
 def fetch_support_file(name, timestamp_tuple):
