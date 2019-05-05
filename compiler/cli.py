@@ -115,12 +115,18 @@ def parse_stub(stub_filename):
         raise error.Error('Failed to parse stub file [%s]' % stub_filename)
 
     # Find the Python interpreter, matching the search logic in
-    # stub_template.txt
+    # stub_template.txt and checking for default toolchain
     if interpreter.startswith('//'):
         raise error.Error('Python interpreter must not be a label [%s]' %
                           stub_filename)
     elif interpreter.startswith('/'):
         pass
+    elif interpreter == 'bazel_tools/tools/python/py3wrapper.sh': # Default toolchain
+        # Replace default toolchain python3 wrapper with default python3 on path
+        interpreter = '/usr/bin/env python3'
+    elif interpreter == 'bazel_tools/tools/python/py2wrapper.sh': # Default toolchain
+        # Replace default toolchain python2 wrapper with default python2 on path
+        interpreter = '/usr/bin/env python2'
     elif '/' in interpreter:
         pass
     else:
