@@ -125,6 +125,10 @@ def parse_stub(stub_filename):
                           stub_filename)
     elif interpreter.startswith('/'):
         pass
+    elif interpreter == 'bazel_tools/tools/python/py3wrapper.sh':
+        interpreter = '/usr/bin/env python3'
+    elif interpreter == 'bazel_tools/tools/python/py2wrapper.sh':
+        interpreter = '/usr/bin/env python2'
     elif '/' in interpreter:
         pass
     else:
