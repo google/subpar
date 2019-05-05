@@ -13,3 +13,6 @@ addons:
       - bazel
 script:
   - ./run_tests.sh
+env:
+  - BAZEL_ARGS=
+  - BAZEL_ARGS="--incompatible_use_python_toolchains"

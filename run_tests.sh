@@ -58,9 +58,9 @@ for PYTHON_INTERPRETER in "${PYTHON2}" "${PYTHON3}"; do
   fi
 
   if [ "${PYTHON_INTERPRETER}" = "${PYTHON3}" ]; then
-    BAZEL_TEST="bazel test --define subpar_test_python_version=3"
+    BAZEL_TEST="bazel test --define subpar_test_python_version=3 ${BAZEL_ARGS:-}"
   else
-    BAZEL_TEST="bazel test"
+    BAZEL_TEST="bazel test ${BAZEL_ARGS:-}"
   fi
 
   echo "Testing ${PYTHON_INTERPRETER}"
