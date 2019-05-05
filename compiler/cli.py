@@ -53,7 +53,7 @@ def make_command_line_parser():
         help='Root directory of all relative paths in manifest file.',
         default=os.getcwd())
     parser.add_argument(
-        '--outputpar',
+        '--output_par',
         help='Filename of generated par file.',
         required=True)
     parser.add_argument(
@@ -91,7 +91,8 @@ def make_command_line_parser():
         '--import_root',
         help='Path to add to sys.path, may be repeated to provide multiple roots.',
         action='append',
-        default=[])
+        default=[],
+        dest='import_roots')
     return parser
 
 
@@ -148,9 +149,9 @@ def main(argv):
 
     par = python_archive.PythonArchive(
         main_filename=args.main_filename,
-        import_roots=args.import_root,
+        import_roots=args.import_roots,
         interpreter=interpreter,
-        output_filename=args.outputpar,
+        output_filename=args.output_par,
         manifest_filename=args.manifest_file,
         manifest_root=args.manifest_root,
         timestamp=args.timestamp,

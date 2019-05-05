@@ -35,7 +35,7 @@ class CliTest(unittest.TestCase):
         args = parser.parse_args([
             '--manifest_file=bar',
             '--manifest_root=bazz',
-            '--outputpar=baz',
+            '--output_par=baz',
             '--stub_file=quux',
             '--zip_safe=False',
             '--import_root=root1',
@@ -44,10 +44,10 @@ class CliTest(unittest.TestCase):
         ])
         self.assertEqual(args.manifest_file, 'bar')
         self.assertEqual(args.manifest_root, 'bazz')
-        self.assertEqual(args.outputpar, 'baz')
+        self.assertEqual(args.output_par, 'baz')
         self.assertEqual(args.stub_file, 'quux')
         self.assertEqual(args.zip_safe, False)
-        self.assertEqual(args.import_root, ['root1', 'root2'])
+        self.assertEqual(args.import_roots, ['root1', 'root2'])
         self.assertEqual(args.main_filename, 'foo')
 
     def test_make_command_line_parser_for_interprerter(self):
@@ -55,7 +55,7 @@ class CliTest(unittest.TestCase):
         args = parser.parse_args([
             '--manifest_file=bar',
             '--manifest_root=bazz',
-            '--outputpar=baz',
+            '--output_par=baz',
             '--stub_file=quux',
             '--zip_safe=False',
             '--interpreter=foobar',

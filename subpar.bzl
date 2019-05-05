@@ -78,7 +78,7 @@ def _parfile_impl(ctx):
     args = ctx.attr.compiler_args + [
         "--manifest_file",
         sources_file.path,
-        "--outputpar",
+        "--output_par",
         ctx.outputs.executable.path,
         "--stub_file",
         ctx.attr.src.files_to_run.executable.path,
