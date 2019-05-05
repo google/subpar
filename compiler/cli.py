@@ -69,7 +69,7 @@ def make_command_line_parser():
     # "Seconds since Unix epoch" was chosen to be compatible with
     # the SOURCE_DATE_EPOCH standard
     #
-    # Numeric calue is from running this:
+    # Numeric value is from running this:
     #   "date --date='Jan 1 1980 00:00:00 utc' --utc +%s"
     parser.add_argument(
         '--timestamp',
