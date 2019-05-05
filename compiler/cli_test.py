@@ -38,9 +38,17 @@ class CliTest(unittest.TestCase):
             '--outputpar=baz',
             '--stub_file=quux',
             '--zip_safe=False',
+            '--import_root=root1',
+            '--import_root=root2',
             'foo',
         ])
         self.assertEqual(args.manifest_file, 'bar')
+        self.assertEqual(args.manifest_root, 'bazz')
+        self.assertEqual(args.outputpar, 'baz')
+        self.assertEqual(args.stub_file, 'quux')
+        self.assertEqual(args.zip_safe, False)
+        self.assertEqual(args.import_root, ['root1', 'root2'])
+        self.assertEqual(args.main_filename, 'foo')
 
     def test_make_command_line_parser_for_interprerter(self):
         parser = cli.make_command_line_parser()
@@ -57,36 +65,31 @@ class CliTest(unittest.TestCase):
 
     def test_stub(self):
         valid_cases = [
-            # Empty list
+            # Absolute path to interpreter
             [b"""
-  python_imports = ''
 PYTHON_BINARY = '/usr/bin/python'
 """,
-             ([], '/usr/bin/python')],
-            # Single import
-            [b"""
-  python_imports = 'myworkspace/spam/eggs'
-PYTHON_BINARY = '/usr/bin/python'
-""",
-             (['myworkspace/spam/eggs'], '/usr/bin/python')],
-            # Multiple imports
-            [b"""
-  python_imports = 'myworkspace/spam/eggs:otherworkspace'
-PYTHON_BINARY = '/usr/bin/python'
-""",
-             (['myworkspace/spam/eggs', 'otherworkspace'], '/usr/bin/python')],
+             '/usr/bin/python'],
             # Relative path to interpreter
             [b"""
-  python_imports = ''
 PYTHON_BINARY = 'mydir/python'
 """,
-             ([], 'mydir/python')],
+             'mydir/python'],
             # Search for interpreter on $PATH
             [b"""
-  python_imports = ''
 PYTHON_BINARY = 'python'
 """,
-             ([], '/usr/bin/env python')],
+             '/usr/bin/env python'],
+            # Default toolchain wrapped python3 interpreter
+            [b"""
+PYTHON_BINARY = 'bazel_tools/tools/python/py3wrapper.sh'
+""",
+             '/usr/bin/env python3'],
+            # Default toolchain wrapped python2 interpreter
+            [b"""
+PYTHON_BINARY = 'bazel_tools/tools/python/py2wrapper.sh'
+""",
+             '/usr/bin/env python2'],
         ]
         for content, expected in valid_cases:
             with test_utils.temp_file(content) as stub_file:
@@ -98,11 +101,8 @@ PYTHON_BINARY = 'python'
             b'\n\n',
             # No interpreter
             b"  python_imports = 'myworkspace/spam/eggs'",
-            # No imports
-            b"PYTHON_BINARY = 'python'\n",
             # Interpreter is label
             b"""
-  python_imports = ''
 PYTHON_BINARY = '//mypackage:python'
 """,
             ]
