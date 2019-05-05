@@ -87,35 +87,31 @@ def make_command_line_parser():
         'directory at the start of execution.',
         type=bool_from_string,
         required=True)
+    parser.add_argument(
+        '--import_root',
+        help='Path to add to sys.path, may be repeated to provide multiple roots.',
+        action='append',
+        default=[])
     return parser
 
 
 def parse_stub(stub_filename):
-    """Parse the imports and interpreter path from a py_binary() stub.
+    """Parse interpreter path from a py_binary() stub.
 
     We assume the stub is utf-8 encoded.
 
-    TODO(b/29227737): Remove this once we can access imports from skylark.
-
-    Returns (list of relative paths, path to Python interpreter)
+    Returns path to Python interpreter
     """
 
-    # Find the list of import roots
-    imports_regex = re.compile(r'''^  python_imports = '([^']*)'$''')
+    # Find the interpreter
     interpreter_regex = re.compile(r'''^PYTHON_BINARY = '([^']*)'$''')
-    import_roots = None
     interpreter = None
     with io.open(stub_filename, 'rt', encoding='utf8') as stub_file:
         for line in stub_file:
-            importers_match = imports_regex.match(line)
-            if importers_match:
-                import_roots = importers_match.group(1).split(':')
-                # Filter out empty paths
-                import_roots = [x for x in import_roots if x]
             interpreter_match = interpreter_regex.match(line)
             if interpreter_match:
                 interpreter = interpreter_match.group(1)
-    if import_roots is None or not interpreter:
+    if not interpreter:
         raise error.Error('Failed to parse stub file [%s]' % stub_filename)
 
     # Find the Python interpreter, matching the search logic in
@@ -130,7 +126,7 @@ def parse_stub(stub_filename):
     else:
         interpreter = '/usr/bin/env %s' % interpreter
 
-    return (import_roots, interpreter)
+    return interpreter
 
 
 def main(argv):
@@ -138,15 +134,15 @@ def main(argv):
     parser = make_command_line_parser()
     args = parser.parse_args(argv[1:])
 
-    # Parse information from stub file that's too hard to compute in Skylark
-    import_roots, interpreter = parse_stub(args.stub_file)
+    # Parse interpreter from stub file that's not available in Skylark
+    interpreter = parse_stub(args.stub_file)
 
     if args.interpreter:
         interpreter = args.interpreter
 
     par = python_archive.PythonArchive(
         main_filename=args.main_filename,
-        import_roots=import_roots,
+        import_roots=args.import_root,
         interpreter=interpreter,
         output_filename=args.outputpar,
         manifest_filename=args.manifest_file,
