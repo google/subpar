@@ -140,7 +140,7 @@ def main(argv):
     parser = make_command_line_parser()
     args = parser.parse_args(argv[1:])
 
-    # Parse interpreter from stub file that's not available in Skylark
+    # Parse interpreter from stub file that's not available in Starlark
     interpreter = parse_stub(args.stub_file)
 
     if args.interpreter:
