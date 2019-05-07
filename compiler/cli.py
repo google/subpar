@@ -101,6 +101,8 @@ def parse_stub(stub_filename):
 
     We assume the stub is utf-8 encoded.
 
+    TODO(bazelbuild/bazel#7805): Remove this once we can access the py_runtime from Starlark.
+
     Returns path to Python interpreter
     """
 
@@ -115,8 +117,17 @@ def parse_stub(stub_filename):
     if not interpreter:
         raise error.Error('Failed to parse stub file [%s]' % stub_filename)
 
-    # Find the Python interpreter, matching the search logic in
-    # stub_template.txt and checking for default toolchain
+    # Determine the Python interpreter, checking for default toolchain.
+    #
+    # This somewhat mirrors the logic in python_stub_template.txt, but we don't support
+    # relative paths (i.e., in-workspace interpreters). This is because the interpreter
+    # will be used in the .par file's shebang, and putting a relative path in a shebang
+    # is extremely brittle and non-relocatable. (The reason the standard py_binary rule
+    # can use an in-workspace interpreter is that its stub script runs in a separate
+    # process and has a shebang referencing the system interpreter). As a special case,
+    # if the Python target is using the autodetecting Python toolchain, which is
+    # technically an in-workspace runtime, we rewrite it to "/usr/bin/env python[2|3]"
+    # rather than fail.
     if interpreter.startswith('//'):
         raise error.Error('Python interpreter must not be a label [%s]' %
                           stub_filename)
@@ -129,7 +140,10 @@ def parse_stub(stub_filename):
         # Replace default toolchain python2 wrapper with default python2 on path
         interpreter = '/usr/bin/env python2'
     elif '/' in interpreter:
-        pass
+        raise error.Error(
+            'par files require a Python runtime that is ' +
+            'installed on the system, not defined inside the workspace. Use ' +
+            'a `py_runtime` with an absolute path, not a label.')
     else:
         interpreter = '/usr/bin/env %s' % interpreter
 

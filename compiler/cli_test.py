@@ -70,11 +70,6 @@ class CliTest(unittest.TestCase):
 PYTHON_BINARY = '/usr/bin/python'
 """,
              '/usr/bin/python'],
-            # Relative path to interpreter
-            [b"""
-PYTHON_BINARY = 'mydir/python'
-""",
-             'mydir/python'],
             # Search for interpreter on $PATH
             [b"""
 PYTHON_BINARY = 'python'
@@ -97,10 +92,11 @@ PYTHON_BINARY = 'bazel_tools/tools/python/py2wrapper.sh'
                 self.assertEqual(actual, expected)
 
         invalid_cases = [
+            # No interpreter
             b'',
             b'\n\n',
-            # No interpreter
-            b"  python_imports = 'myworkspace/spam/eggs'",
+            # Relative interpreter path
+            b"PYTHON_BINARY = 'mydir/python'",
             # Interpreter is label
             b"""
 PYTHON_BINARY = '//mypackage:python'
