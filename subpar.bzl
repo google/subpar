@@ -64,8 +64,7 @@ def _parfile_impl(ctx):
     )
 
     # Find the list of directories to add to sys.path
-    # TODO(b/29227737): Use 'imports' provider from Bazel
-    stub_file = ctx.attr.src.files_to_run.executable.path
+    import_roots = ctx.attr.src[PyInfo].imports.to_list()
 
     # Inputs to the action, but don't actually get stored in the .par file
     extra_inputs = [
@@ -79,14 +78,18 @@ def _parfile_impl(ctx):
     args = ctx.attr.compiler_args + [
         "--manifest_file",
         sources_file.path,
-        "--outputpar",
+        "--output_par",
         ctx.outputs.executable.path,
         "--stub_file",
-        stub_file,
+        ctx.attr.src.files_to_run.executable.path,
         "--zip_safe",
         str(zip_safe),
-        main_py_file.path,
     ]
+    for import_root in import_roots:
+        args.extend(['--import_root', import_root])
+    args.append(main_py_file.path)
+
+    # Run compiler
     ctx.actions.run(
         inputs = inputs + extra_inputs,
         tools = [ctx.attr.src.files_to_run.executable],

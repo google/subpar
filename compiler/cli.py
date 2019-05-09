@@ -53,7 +53,7 @@ def make_command_line_parser():
         help='Root directory of all relative paths in manifest file.',
         default=os.getcwd())
     parser.add_argument(
-        '--outputpar',
+        '--output_par',
         help='Filename of generated par file.',
         required=True)
     parser.add_argument(
@@ -69,7 +69,7 @@ def make_command_line_parser():
     # "Seconds since Unix epoch" was chosen to be compatible with
     # the SOURCE_DATE_EPOCH standard
     #
-    # Numeric calue is from running this:
+    # Numeric value is from running this:
     #   "date --date='Jan 1 1980 00:00:00 utc' --utc +%s"
     parser.add_argument(
         '--timestamp',
@@ -87,50 +87,67 @@ def make_command_line_parser():
         'directory at the start of execution.',
         type=bool_from_string,
         required=True)
+    parser.add_argument(
+        '--import_root',
+        help='Path to add to sys.path, may be repeated to provide multiple roots.',
+        action='append',
+        default=[],
+        dest='import_roots')
     return parser
 
 
 def parse_stub(stub_filename):
-    """Parse the imports and interpreter path from a py_binary() stub.
+    """Parse interpreter path from a py_binary() stub.
 
     We assume the stub is utf-8 encoded.
 
-    TODO(b/29227737): Remove this once we can access imports from skylark.
+    TODO(bazelbuild/bazel#7805): Remove this once we can access the py_runtime from Starlark.
 
-    Returns (list of relative paths, path to Python interpreter)
+    Returns path to Python interpreter
     """
 
-    # Find the list of import roots
-    imports_regex = re.compile(r'''^  python_imports = '([^']*)'$''')
+    # Find the interpreter
     interpreter_regex = re.compile(r'''^PYTHON_BINARY = '([^']*)'$''')
-    import_roots = None
     interpreter = None
     with io.open(stub_filename, 'rt', encoding='utf8') as stub_file:
         for line in stub_file:
-            importers_match = imports_regex.match(line)
-            if importers_match:
-                import_roots = importers_match.group(1).split(':')
-                # Filter out empty paths
-                import_roots = [x for x in import_roots if x]
             interpreter_match = interpreter_regex.match(line)
             if interpreter_match:
                 interpreter = interpreter_match.group(1)
-    if import_roots is None or not interpreter:
+    if not interpreter:
         raise error.Error('Failed to parse stub file [%s]' % stub_filename)
 
-    # Find the Python interpreter, matching the search logic in
-    # stub_template.txt
+    # Determine the Python interpreter, checking for default toolchain.
+    #
+    # This somewhat mirrors the logic in python_stub_template.txt, but we don't support
+    # relative paths (i.e., in-workspace interpreters). This is because the interpreter
+    # will be used in the .par file's shebang, and putting a relative path in a shebang
+    # is extremely brittle and non-relocatable. (The reason the standard py_binary rule
+    # can use an in-workspace interpreter is that its stub script runs in a separate
+    # process and has a shebang referencing the system interpreter). As a special case,
+    # if the Python target is using the autodetecting Python toolchain, which is
+    # technically an in-workspace runtime, we rewrite it to "/usr/bin/env python[2|3]"
+    # rather than fail.
     if interpreter.startswith('//'):
         raise error.Error('Python interpreter must not be a label [%s]' %
                           stub_filename)
     elif interpreter.startswith('/'):
         pass
+    elif interpreter == 'bazel_tools/tools/python/py3wrapper.sh': # Default toolchain
+        # Replace default toolchain python3 wrapper with default python3 on path
+        interpreter = '/usr/bin/env python3'
+    elif interpreter == 'bazel_tools/tools/python/py2wrapper.sh': # Default toolchain
+        # Replace default toolchain python2 wrapper with default python2 on path
+        interpreter = '/usr/bin/env python2'
     elif '/' in interpreter:
-        pass
+        raise error.Error(
+            'par files require a Python runtime that is ' +
+            'installed on the system, not defined inside the workspace. Use ' +
+            'a `py_runtime` with an absolute path, not a label.')
     else:
         interpreter = '/usr/bin/env %s' % interpreter
 
-    return (import_roots, interpreter)
+    return interpreter
 
 
 def main(argv):
@@ -138,17 +155,17 @@ def main(argv):
     parser = make_command_line_parser()
     args = parser.parse_args(argv[1:])
 
-    # Parse information from stub file that's too hard to compute in Skylark
-    import_roots, interpreter = parse_stub(args.stub_file)
+    # Parse interpreter from stub file that's not available in Starlark
+    interpreter = parse_stub(args.stub_file)
 
     if args.interpreter:
         interpreter = args.interpreter
 
     par = python_archive.PythonArchive(
         main_filename=args.main_filename,
-        import_roots=import_roots,
+        import_roots=args.import_roots,
         interpreter=interpreter,
-        output_filename=args.outputpar,
+        output_filename=args.output_par,
         manifest_filename=args.manifest_file,
         manifest_root=args.manifest_root,
         timestamp=args.timestamp,
