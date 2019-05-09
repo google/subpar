@@ -11,14 +11,13 @@ exports_files([
 ])
 
 load("//:subpar.bzl", "par_binary")
+load("//:toolchain_test_hook.bzl", "PYVER", "define_toolchain_for_testing")
 
-# Configurations
-config_setting(
-    name = "subpar_test_python_version_3",
-    define_values = {
-        "subpar_test_python_version": "3",
-    },
-)
+# Creates the target //tests:toolchain_for_testing.
+#
+# This hook is used by run_tests.sh to inject a Python toolchain into the build
+# during tests. When not running tests this hook is a no-op.
+define_toolchain_for_testing()
 
 # Utility targets
 sh_library(
@@ -65,14 +64,11 @@ par_binary(
 
 par_binary(
     name = "package_f/f",
-    srcs = select({
-        "subpar_test_python_version_3": ["package_f/f_PY3.py"],
-        "//conditions:default": ["package_f/f_PY2.py"],
-    }),
-    main = select({
-        "subpar_test_python_version_3": "package_f/f_PY3.py",
-        "//conditions:default": "package_f/f_PY2.py",
-    }),
+    # We need to use the PYVER constant defined by the test hook, rather than
+    # select(), because python_version is not a configurable attribute.
+    srcs = ["package_f/f_PY3.py"] if PYVER == "PY3" else ["package_f/f_PY2.py"],
+    main = "package_f/f_PY3.py" if PYVER == "PY3" else "package_f/f_PY2.py",
+    python_version = "PY3" if PYVER == "PY3" else "PY2"
 )
 
 par_binary(
@@ -151,16 +147,12 @@ par_binary(
         args = [
             "--par",
             "%s.par" % path,
-        ] + select({
-            "subpar_test_python_version_3": ["%s_PY3_filelist.txt" % path],
-            "//conditions:default": ["%s_PY2_filelist.txt" % path],
-        }),
+            ("%s_PY3_filelist.txt" % path) if PYVER == "PY3" else ("%s_PY2_filelist.txt" % path)
+        ],
         data = [
             "%s.par" % label,
-        ] + select({
-            "subpar_test_python_version_3": ["%s_PY3_filelist.txt" % label],
-            "//conditions:default": ["%s_PY2_filelist.txt" % label],
-        }),
+            ("%s_PY3_filelist.txt" % label) if PYVER == "PY3" else ("%s_PY2_filelist.txt" % label)
+        ],
     ),
 ) for name, label, path in [
     ("basic", "//tests/package_a:a", "tests/package_a/a"),
