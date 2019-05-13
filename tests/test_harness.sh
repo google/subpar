@@ -40,8 +40,12 @@ TMP_EXECUTABLE="$TEST_TMPDIR"/$(basename "$EXECUTABLE")
 
 # Compare list of files in zipfile with expected list
 if [ "$PAR" -eq 1 ]; then
+  # Exclude runfiles of the autodetecting toolchain. The test is still brittle
+  # with respect to runfiles introduced by any other toolchain. When tests are
+  # invoked by run_tests.sh, a custom toolchain with no runfiles is used.
   diff \
-    <(unzip -l -q -q "$EXECUTABLE" | awk '{print $NF}') \
+    <(unzip -l -q -q "$EXECUTABLE" | awk '{print $NF}' \
+        | grep -v 'bazel_tools/tools/python/py.wrapper\.sh') \
     "$FILELIST" \
     || die 'FATAL: zipfile contents do not match expected'
 fi
