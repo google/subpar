@@ -1,0 +1,3 @@
+# //tests:version_test asserts on the Python interpreter version, so enable
+# toolchains to ensure we get the right one (avoid bazelbuild/bazel#4815).
+build --incompatible_use_python_toolchains
