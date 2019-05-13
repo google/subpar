@@ -38,7 +38,7 @@ function die {
 # that we are compiling uses PY3.
 function set_toolchain_hook {
   pyver=$1
-  if [ $pyver == "PY3"]; then
+  if [ $pyver == "PY3" ]; then
     py2_path="$PYTHON2"
     py3_path="$2"
   else
