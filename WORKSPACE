@@ -1,5 +1,13 @@
 workspace(name = "subpar")
 
+# These version vars aren't consumed by anything but are good to know for
+# documentation / compatibility purposes.
+#
+# Because of use of `PyInfo` provider.
+MIN_BAZEL_VERSION = "0.23.0"
+# Because tests require --incompatible_use_python_toolchains.
+MIN_BAZEL_VERSION_FOR_TESTS = "0.25.0"
+
 # Used by integration tests
 local_repository(
     name = "test_workspace",
