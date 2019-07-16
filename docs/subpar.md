@@ -108,7 +108,7 @@ specifically need to test a module's behaviour when used in a .par binary.
 ## parfile
 
 <pre>
-parfile(<a href="#parfile.name">name</a>, <a href="#parfile.src">src</a>, <a href="#parfile.compiler">compiler</a>, <a href="#parfile.compiler_args">compiler_args</a>, <a href="#parfile.default_python_version">default_python_version</a>, <a href="#parfile.imports">imports</a>, <a href="#parfile.main">main</a>, <a href="#parfile.zip_safe">zip_safe</a>)
+parfile(<a href="#parfile.name">name</a>, <a href="#parfile.src">src</a>, <a href="#parfile.compiler">compiler</a>, <a href="#parfile.compiler_args">compiler_args</a>, <a href="#parfile.default_python_version">default_python_version</a>, <a href="#parfile.imports">imports</a>, <a href="#parfile.main">main</a>, <a href="#parfile.no_remove">no_remove</a>, <a href="#parfile.zip_safe">zip_safe</a>)
 </pre>
 
 A self-contained, single-file Python program, with a .par file extension.
@@ -182,6 +182,14 @@ the application.</p>
 <p>See <a href="http://www.bazel.io/docs/be/python.html#py_binary.main">py_binary.main</a></p>
       </td>
     </tr>
+    <tr id="parfile.no_remove">
+      <td><code>no_remove</code></td>
+      <td>
+        <p><code>Boolean; Optional; Default is False</code></p>
+        <p>Whether to keep the extracted temporary directory after the
+program finishes, if zip_safe is enabled.</p>
+      </td>
+    </tr>
     <tr id="parfile.zip_safe">
       <td><code>zip_safe</code></td>
       <td>
@@ -198,7 +206,7 @@ par file executes.</p>
 ## parfile_test
 
 <pre>
-parfile_test(<a href="#parfile_test.name">name</a>, <a href="#parfile_test.src">src</a>, <a href="#parfile_test.compiler">compiler</a>, <a href="#parfile_test.compiler_args">compiler_args</a>, <a href="#parfile_test.default_python_version">default_python_version</a>, <a href="#parfile_test.imports">imports</a>, <a href="#parfile_test.main">main</a>, <a href="#parfile_test.zip_safe">zip_safe</a>)
+parfile_test(<a href="#parfile_test.name">name</a>, <a href="#parfile_test.src">src</a>, <a href="#parfile_test.compiler">compiler</a>, <a href="#parfile_test.compiler_args">compiler_args</a>, <a href="#parfile_test.default_python_version">default_python_version</a>, <a href="#parfile_test.imports">imports</a>, <a href="#parfile_test.main">main</a>, <a href="#parfile_test.no_remove">no_remove</a>, <a href="#parfile_test.zip_safe">zip_safe</a>)
 </pre>
 
 Identical to par_binary, but the rule is marked as being a test.
@@ -267,6 +275,14 @@ You probably want to use par_test() instead of this.
         <p>The name of the source file that is the main entry point of
 the application.</p>
 <p>See <a href="http://www.bazel.io/docs/be/python.html#py_binary.main">py_binary.main</a></p>
+      </td>
+    </tr>
+    <tr id="parfile_test.no_remove">
+      <td><code>no_remove</code></td>
+      <td>
+        <p><code>Boolean; Optional; Default is False</code></p>
+        <p>Whether to keep the extracted temporary directory after the
+program finishes, if zip_safe is enabled.</p>
       </td>
     </tr>
     <tr id="parfile_test.zip_safe">
