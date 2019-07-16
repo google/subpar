@@ -73,6 +73,7 @@ def _parfile_impl(ctx):
     ]
 
     zip_safe = ctx.attr.zip_safe
+    no_remove = ctx.attr.no_remove
 
     # Assemble command line for .par compiler
     args = ctx.attr.compiler_args + [
@@ -84,6 +85,8 @@ def _parfile_impl(ctx):
         ctx.attr.src.files_to_run.executable.path,
         "--zip_safe",
         str(zip_safe),
+        '--no_remove',
+        str(no_remove),
     ]
     for import_root in import_roots:
         args.extend(['--import_root', import_root])
@@ -136,6 +139,7 @@ parfile_attrs = {
     ),
     "compiler_args": attr.string_list(default = []),
     "zip_safe": attr.bool(default = True),
+    "no_remove": attr.bool(default = False),
 }
 
 # Rule to create a parfile given a py_binary() as input
@@ -171,6 +175,9 @@ Args:
             extracted to a temporary directory on disk each time the
             par file executes.
 
+  no_remove: Whether to keep the extracted temporary directory after the
+             program finishes, if zip_safe is enabled.
+
 TODO(b/27502830): A directory foo.par.runfiles is also created. This
 is a bug, don't use or depend on it.
 """
@@ -204,6 +211,7 @@ def par_binary(name, **kwargs):
     compiler = kwargs.pop("compiler", None)
     compiler_args = kwargs.pop("compiler_args", [])
     zip_safe = kwargs.pop("zip_safe", True)
+    no_remove = kwargs.pop('no_remove', False)
     native.py_binary(name = name, **kwargs)
 
     main = kwargs.get("main", name + ".py")
@@ -222,6 +230,7 @@ def par_binary(name, **kwargs):
         testonly = testonly,
         visibility = visibility,
         zip_safe = zip_safe,
+        no_remove=no_remove,
     )
 
 def par_test(name, **kwargs):
@@ -232,6 +241,7 @@ def par_test(name, **kwargs):
     """
     compiler = kwargs.pop("compiler", None)
     zip_safe = kwargs.pop("zip_safe", True)
+    no_remove = kwargs.pop('no_remove', False)
     native.py_test(name = name, **kwargs)
 
     main = kwargs.get("main", name + ".py")
@@ -249,4 +259,5 @@ def par_test(name, **kwargs):
         testonly = testonly,
         visibility = visibility,
         zip_safe = zip_safe,
+        no_remove=no_remove,
     )

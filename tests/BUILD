@@ -90,6 +90,7 @@ par_binary(
     main = "package_extract/extract.py",
     srcs_version = "PY2AND3",
     zip_safe = False,
+    no_remove = False,
 )
 
 par_binary(

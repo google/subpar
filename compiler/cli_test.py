@@ -38,6 +38,7 @@ class CliTest(unittest.TestCase):
             '--output_par=baz',
             '--stub_file=quux',
             '--zip_safe=False',
+            '--no_remove=False',
             '--import_root=root1',
             '--import_root=root2',
             'foo',
@@ -58,6 +59,7 @@ class CliTest(unittest.TestCase):
             '--output_par=baz',
             '--stub_file=quux',
             '--zip_safe=False',
+            '--no_remove=False',
             '--interpreter=foobar',
             'foo',
         ])

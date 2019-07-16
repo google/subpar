@@ -51,6 +51,7 @@ class PythonArchiveTest(unittest.TestCase):
         self.date_time_tuple = (1980, 1, 1, 0, 0, 0)
         self.timestamp = 315532800
         self.zip_safe = True
+        self.no_remove = False
 
     def _construct(self, manifest_filename=None):
         return python_archive.PythonArchive(
@@ -62,6 +63,7 @@ class PythonArchiveTest(unittest.TestCase):
             output_filename=self.output_filename,
             timestamp=self.timestamp,
             zip_safe=self.zip_safe,
+            no_remove=self.no_remove,
         )
 
     def test_create_manifest_not_found(self):
