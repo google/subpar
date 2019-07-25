@@ -211,6 +211,7 @@ def par_binary(name, **kwargs):
     default_python_version = kwargs.get("default_python_version", "PY2")
     visibility = kwargs.get("visibility")
     testonly = kwargs.get("testonly", False)
+    tags = kwargs.get("tags", [])
     parfile(
         compiler = compiler,
         compiler_args = compiler_args,
@@ -222,6 +223,7 @@ def par_binary(name, **kwargs):
         testonly = testonly,
         visibility = visibility,
         zip_safe = zip_safe,
+        tags = tags,
     )
 
 def par_test(name, **kwargs):
@@ -239,6 +241,7 @@ def par_test(name, **kwargs):
     default_python_version = kwargs.get("default_python_version", "PY2")
     visibility = kwargs.get("visibility")
     testonly = kwargs.get("testonly", True)
+    tags = kwargs.get("tags", [])
     parfile_test(
         compiler = compiler,
         default_python_version = default_python_version,
@@ -249,4 +252,5 @@ def par_test(name, **kwargs):
         testonly = testonly,
         visibility = visibility,
         zip_safe = zip_safe,
+        tags = tags,
     )
