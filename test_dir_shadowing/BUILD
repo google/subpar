@@ -5,9 +5,10 @@
 # workspace, and consisting of two direcotories with the same name,
 # E.g. `<workspace>/X/X` for some `X`.
 
-package(default_visibility = ["//tests:__subpackages__"])
-
+load("@rules_python//python:defs.bzl", "py_library")
 load("//:subpar.bzl", "par_binary")
+
+package(default_visibility = ["//tests:__subpackages__"])
 
 exports_files([
     "test_dir_shadowing_main_PY2_filelist.txt",
