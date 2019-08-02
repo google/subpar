@@ -47,7 +47,7 @@ function set_toolchain_hook {
   fi
 
   cat > toolchain_test_hook.bzl << EOF
-load("@rules_python//python:defs", "py_runtime", "py_runtime_pair")
+load("@rules_python//python:defs.bzl", "py_runtime", "py_runtime_pair")
 
 PYVER = "$pyver"
 
