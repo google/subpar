@@ -1,8 +1,9 @@
 # Test package for Subpar
 
-package(default_visibility = ["//tests:__subpackages__"])
-
+load("@rules_python//python:defs.bzl", "py_library")
 load("//:subpar.bzl", "par_binary")
+
+package(default_visibility = ["//tests:__subpackages__"])
 
 exports_files([
     "a_PY2_filelist.txt",

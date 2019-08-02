@@ -47,18 +47,18 @@ function set_toolchain_hook {
   fi
 
   cat > toolchain_test_hook.bzl << EOF
-load("@bazel_tools//tools/python:toolchain.bzl", "py_runtime_pair")
+load("@rules_python//python:defs", "py_runtime", "py_runtime_pair")
 
 PYVER = "$pyver"
 
 def define_toolchain_for_testing():
-    native.py_runtime(
+    py_runtime(
         name = "py2_runtime",
         interpreter_path = "$py2_path",
         python_version = "PY2",
     )
 
-    native.py_runtime(
+    py_runtime(
         name = "py3_runtime",
         interpreter_path = "$py3_path",
         python_version = "PY3",

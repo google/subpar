@@ -14,6 +14,8 @@
 
 """Build self-contained python executables."""
 
+load("@rules_python//python:defs.bzl", "py_binary", "py_test")
+
 DEFAULT_COMPILER = "//compiler:compiler.par"
 
 def _parfile_impl(ctx):
@@ -204,7 +206,7 @@ def par_binary(name, **kwargs):
     compiler = kwargs.pop("compiler", None)
     compiler_args = kwargs.pop("compiler_args", [])
     zip_safe = kwargs.pop("zip_safe", True)
-    native.py_binary(name = name, **kwargs)
+    py_binary(name = name, **kwargs)
 
     main = kwargs.get("main", name + ".py")
     imports = kwargs.get("imports")
@@ -232,7 +234,7 @@ def par_test(name, **kwargs):
     """
     compiler = kwargs.pop("compiler", None)
     zip_safe = kwargs.pop("zip_safe", True)
-    native.py_test(name = name, **kwargs)
+    py_test(name = name, **kwargs)
 
     main = kwargs.get("main", name + ".py")
     imports = kwargs.get("imports")
