@@ -5,6 +5,12 @@
 Subpar is a utility for creating self-contained python executables.  It is
 designed to work well with [Bazel](https://bazel.build/).
 
+## Status
+
+Subpar is currently owned by the maintainers of [bazelbuild/rules_python](https://github.com/bazelbuild/rules_python), which depends on it. It is not being actively developed beyond what is needed to keep compatibility with rules_python.
+
+Historically, subpar was the only way to produce a deployable Python artifact in Bazel. This is no longer quite true; `--build_python_zip` allows you to create executable Python zip artifacts with the standard `py_binary` rule. Subpar still supports some use cases `--build_python_zip` doesn't: In particular, it allows you to build archives of specific targets without using a global command-line flag, and in some cases the archives can run in-place without extraction.
+
 ## Setup
 
 * Add the following to your WORKSPACE file:
