@@ -1,8 +1,9 @@
 # Utility for creating self-contained python executables.
 
-package(default_visibility = ["//visibility:public"])
-
+load("@rules_python//python:defs.bzl", "py_library", "py_binary", "py_test")
 load("//:subpar.bzl", "parfile")
+
+package(default_visibility = ["//visibility:public"])
 
 py_library(
     name = "compiler_lib",

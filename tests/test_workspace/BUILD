@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-package(default_visibility = ["//visibility:public"])
-
+load("@rules_python//python:defs.bzl", "py_library")
 load("@subpar//:subpar.bzl", "par_binary")
+
+package(default_visibility = ["//visibility:public"])
 
 exports_files(["data_file.txt"])
 
