@@ -19,7 +19,7 @@ Historically, subpar was the only way to produce a deployable Python artifact in
 git_repository(
     name = "subpar",
     remote = "https://github.com/google/subpar",
-    tag = "1.0.0",
+    tag = "<latest>",
 )
 ```
 
