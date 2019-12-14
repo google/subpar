@@ -170,6 +170,8 @@ class PythonArchiveTest(unittest.TestCase):
              b"'''Triple-single-quote module \"'\n\n docstring'''\nBOILERPLATE\n"),
             (b'"""Triple-double-quote module "\'\n\n docstring"""\n',
              b'"""Triple-double-quote module "\'\n\n docstring"""\nBOILERPLATE\n'),
+            (b'r"""Triple-double-quote module "\'\n\n raw docstring"""\n',
+             b'r"""Triple-double-quote module "\'\n\n raw docstring"""\nBOILERPLATE\n'),
         ]
         for main_content, expected in cases:
             with test_utils.temp_file(main_content) as main_file:
