@@ -137,8 +137,10 @@ for PYTHON_INTERPRETER in "${PYTHON2}" "${PYTHON3}"; do
   if [ -z "${PYTHON_INTERPRETER}" ] ; then
     continue;
   fi
-
-  BAZEL_TEST="bazel test --test_output=errors \
+  PAR_DIRECTORY=$HOME/.pex/par
+  mkdir -p ${PAR_DIRECTORY}
+  BAZEL_TEST="bazel test --sandbox_tmpfs_path=${PAR_DIRECTORY} \
+--test_output=errors \
 --incompatible_use_python_toolchains \
 --extra_toolchains=//tests:toolchain_for_testing"
   if [ "${PYTHON_INTERPRETER}" = "${PYTHON3}" ]; then

@@ -62,6 +62,7 @@ import warnings
 import zipfile
 import zipimport
 
+PAR_DIRECTORY = os.path.join(os.path.expanduser("~"), '.pex', 'par')
 
 def _log(msg):
     """Print a debugging message in the same format as python -vv output"""
@@ -105,7 +106,10 @@ def _extract_files(archive_path):
     Returns:
         Directory where contents were extracted to.
     """
-    extract_dir = tempfile.mkdtemp()
+
+    if not os.path.exists(PAR_DIRECTORY):
+        os.makedirs(PAR_DIRECTORY)
+    extract_dir = tempfile.mkdtemp(prefix='bazel_', dir=PAR_DIRECTORY)
 
     def _extract_files_cleanup():
         shutil.rmtree(extract_dir, ignore_errors=True)
