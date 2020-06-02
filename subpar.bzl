@@ -88,7 +88,11 @@ def _parfile_impl(ctx):
         str(zip_safe),
     ]
     for import_root in import_roots:
-        args.extend(['--import_root', import_root])
+        args.extend(["--import_root", import_root])
+
+    if ctx.attr.interpreter:
+        args.extend(["--interpreter", ctx.attr.interpreter])
+
     args.append(main_py_file.path)
 
     # Run compiler
@@ -130,6 +134,7 @@ parfile_attrs = {
         allow_single_file = True,
     ),
     "imports": attr.string_list(default = []),
+    "interpreter": attr.string(),
     "default_python_version": attr.string(mandatory = True),
     "compiler": attr.label(
         default = Label(DEFAULT_COMPILER),
@@ -206,6 +211,7 @@ def par_binary(name, **kwargs):
     compiler = kwargs.pop("compiler", None)
     compiler_args = kwargs.pop("compiler_args", [])
     zip_safe = kwargs.pop("zip_safe", True)
+    interpreter = kwargs.pop("interpreter", None)
     py_binary(name = name, **kwargs)
 
     main = kwargs.get("main", name + ".py")
@@ -225,6 +231,7 @@ def par_binary(name, **kwargs):
         testonly = testonly,
         visibility = visibility,
         zip_safe = zip_safe,
+        interpreter = interpreter,
         tags = tags,
     )
 
