@@ -235,8 +235,17 @@ class PythonArchive(object):
                 stored_resources[stored_path] = stored_resource.EmptyFile(
                     stored_path, self.timestamp_tuple)
             else:
-                stored_resources[stored_path] = stored_resource.StoredFile(
-                    stored_path, self.timestamp_tuple, local_path)
+                if os.path.isdir(local_path):
+                    all_files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(local_path) for f in filenames]
+                    for local_subpath in sorted(all_files):
+                        if os.path.isdir(local_subpath):
+                            continue
+                        stored_subpath = stored_path + local_subpath.replace(local_path, '')
+                        stored_resources[stored_subpath] = stored_resource.StoredFile(
+                            stored_subpath, self.timestamp_tuple, local_subpath)
+                else:
+                    stored_resources[stored_path] = stored_resource.StoredFile(
+                        stored_path, self.timestamp_tuple, local_path)
 
         # Copy main entry point to well-known name
         if '__main__.py' in stored_resources:
