@@ -89,6 +89,8 @@ def _parfile_impl(ctx):
     ]
     for import_root in import_roots:
         args.extend(['--import_root', import_root])
+    if ctx.attr.interpreter:
+        args.extend(['--interpreter', ctx.attr.interpreter])
     args.append(main_py_file.path)
 
     # Run compiler
@@ -137,6 +139,7 @@ parfile_attrs = {
         cfg = "host",
     ),
     "compiler_args": attr.string_list(default = []),
+    "interpreter": attr.string(),
     "zip_safe": attr.bool(default = True),
 }
 
