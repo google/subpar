@@ -58,7 +58,7 @@ def make_command_line_parser():
         required=True)
     parser.add_argument(
         '--stub_file',
-        help='Read imports and interpreter path from the specified stub file',
+        help='Read interpreter path from the specified stub file',
         required=True)
     parser.add_argument(
         '--interpreter',
@@ -156,10 +156,7 @@ def main(argv):
     args = parser.parse_args(argv[1:])
 
     # Parse interpreter from stub file that's not available in Starlark
-    interpreter = parse_stub(args.stub_file)
-
-    if args.interpreter:
-        interpreter = args.interpreter
+    interpreter = args.interpreter or parse_stub(args.stub_file)
 
     par = python_archive.PythonArchive(
         main_filename=args.main_filename,
