@@ -155,11 +155,11 @@ def main(argv):
     parser = make_command_line_parser()
     args = parser.parse_args(argv[1:])
 
-    # Parse interpreter from stub file that's not available in Starlark
-    interpreter = parse_stub(args.stub_file)
-
     if args.interpreter:
         interpreter = args.interpreter
+    else:
+        # Parse interpreter from stub file that's not available in Starlark
+        interpreter = parse_stub(args.stub_file)
 
     par = python_archive.PythonArchive(
         main_filename=args.main_filename,
