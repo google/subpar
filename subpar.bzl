@@ -208,6 +208,7 @@ def par_binary(name, **kwargs):
     """
     compiler = kwargs.pop("compiler", None)
     compiler_args = kwargs.pop("compiler_args", [])
+    interpreter = kwargs.pop("interpreter", None)
     zip_safe = kwargs.pop("zip_safe", True)
     py_binary(name = name, **kwargs)
 
@@ -222,6 +223,7 @@ def par_binary(name, **kwargs):
         compiler_args = compiler_args,
         default_python_version = default_python_version,
         imports = imports,
+        interpreter = interpreter,
         main = main,
         name = name + ".par",
         src = name,
@@ -238,6 +240,7 @@ def par_test(name, **kwargs):
     specifically need to test a module's behaviour when used in a .par binary.
     """
     compiler = kwargs.pop("compiler", None)
+    interpreter = kwargs.pop("interpreter", None)
     zip_safe = kwargs.pop("zip_safe", True)
     py_test(name = name, **kwargs)
 
@@ -251,6 +254,7 @@ def par_test(name, **kwargs):
         compiler = compiler,
         default_python_version = default_python_version,
         imports = imports,
+        interpreter = interpreter,
         main = main,
         name = name + ".par",
         src = name,
