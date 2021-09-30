@@ -76,6 +76,11 @@ def _parfile_impl(ctx):
 
     zip_safe = ctx.attr.zip_safe
 
+    # TODO: When running the py_binary target on Windows, we will need to 
+    # find the right temp created by py_binary. This is very brittle.
+    # Is there a better way to find this?
+    stub_file = ctx.attr.src.files_to_run.executable.path.replace('.exe', '.temp')
+
     # Assemble command line for .par compiler
     args = ctx.attr.compiler_args + [
         "--manifest_file",
@@ -83,21 +88,44 @@ def _parfile_impl(ctx):
         "--output_par",
         ctx.outputs.executable.path,
         "--stub_file",
-        ctx.attr.src.files_to_run.executable.path,
+        stub_file,
         "--zip_safe",
         str(zip_safe),
     ]
+
+    # Get the runtimes to find the intepreters
+    # TODO: find out what version of Python we are targetting and run the appropriate interpreter.
+    # TODO: This is used to run the compiler.par package with the right version of Python. 
+    # But, to use parfile - we by-pass this since that is already a py_binary.
+    py2_tc = ctx.toolchains["@bazel_tools//tools/python:toolchain_type"].py2_runtime
+    py3_tc = ctx.toolchains["@bazel_tools//tools/python:toolchain_type"].py3_runtime
+
+    if py2_tc.interpreter_path:
+        args.extend([
+            "--interpreter",
+            py2_tc.interpreter_path,
+        ])
+
     for import_root in import_roots:
         args.extend(['--import_root', import_root])
     args.append(main_py_file.path)
 
+    compiler_exe = ctx.executable.compiler
+    if (ctx.target_platform_has_constraint(
+            ctx.attr.windows_constraint[platform_common.ConstraintValueInfo])
+        and not ctx.executable.compiler.path.endswith('exe')):
+        # While running for windows, to run compiler.par, interpreter is
+        # required, so use a python interpreter to run the compiler binary.
+        compiler_exe = py2_tc.interpreter
+        args.insert(0, ctx.executable.compiler.path)
+
     # Run compiler
     ctx.actions.run(
         inputs = inputs + extra_inputs,
-        tools = [ctx.attr.src.files_to_run.executable],
+        tools = [ctx.attr.src.files_to_run.executable, ctx.executable.compiler],
         outputs = [ctx.outputs.executable],
         progress_message = "Building par file %s" % ctx.label,
-        executable = ctx.executable.compiler,
+        executable = compiler_exe,
         arguments = args,
         mnemonic = "PythonCompile",
         use_default_shell_env = True,
@@ -138,6 +166,7 @@ parfile_attrs = {
     ),
     "compiler_args": attr.string_list(default = []),
     "zip_safe": attr.bool(default = True),
+    "windows_constraint": attr.label("@platforms//os:windows"),
 }
 
 # Rule to create a parfile given a py_binary() as input
@@ -146,6 +175,7 @@ parfile = rule(
     executable = True,
     implementation = _parfile_impl,
     test = False,
+    toolchains = ["@bazel_tools//tools/python:toolchain_type"],
 )
 """A self-contained, single-file Python program, with a .par file extension.
 
