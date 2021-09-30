@@ -93,10 +93,8 @@ def _parfile_impl(ctx):
         str(zip_safe),
     ]
 
-    # Get the runtimes to find the intepreters
-    # TODO: find out what version of Python we are targetting and run the appropriate interpreter.
-    # TODO: This is used to run the compiler.par package with the right version of Python. 
-    # But, to use parfile - we by-pass this since that is already a py_binary.
+    # Get the python runtimes to find the intepreters
+    # This is used to run the compiler.par package with the right version of Python. 
     py2_tc = ctx.toolchains["@bazel_tools//tools/python:toolchain_type"].py2_runtime
     py3_tc = ctx.toolchains["@bazel_tools//tools/python:toolchain_type"].py3_runtime
 
