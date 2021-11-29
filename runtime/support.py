@@ -64,6 +64,14 @@ import zipimport
 
 PAR_DIRECTORY = os.path.join(os.path.expanduser("~"), '.pex', 'par')
 
+def _get_par_directory_path():
+    """Get path for par directory where we will extract the binary."""
+    if os.environ.get('PEX_ROOT'):
+        par_directory = os.path.join(os.path.expanduser("~"), '.upgrade_pex')
+    else:
+	par_directory = os.path.join(os.path.expanduser("~"), '.pex', 'par')
+    return par_directory
+
 def _log(msg):
     """Print a debugging message in the same format as python -vv output"""
     if sys.flags.verbose:
@@ -106,10 +114,10 @@ def _extract_files(archive_path):
     Returns:
         Directory where contents were extracted to.
     """
-
-    if not os.path.exists(PAR_DIRECTORY):
-        os.makedirs(PAR_DIRECTORY)
-    extract_dir = tempfile.mkdtemp(prefix='bazel_', dir=PAR_DIRECTORY)
+    par_dir = _get_par_directory_path()
+    if not os.path.exists(par_dir):
+        os.makedirs(par_dir)
+    extract_dir = tempfile.mkdtemp(prefix='bazel_', dir=par_dir)
 
     def _extract_files_cleanup():
         shutil.rmtree(extract_dir, ignore_errors=True)
