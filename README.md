@@ -1,4 +1,4 @@
-# Subpar
+# Subpar (deprecated)
 
 [![Build Status](https://travis-ci.org/google/subpar.svg?branch=master)](https://travis-ci.org/google/subpar)
 
@@ -7,9 +7,10 @@ designed to work well with [Bazel](https://bazel.build/).
 
 ## Status
 
-Subpar is currently owned by the maintainers of [bazelbuild/rules_python](https://github.com/bazelbuild/rules_python), which depends on it. It is not being actively developed beyond what is needed to keep compatibility with rules_python.
-
-Historically, subpar was the only way to produce a deployable Python artifact in Bazel. This is no longer quite true; `--build_python_zip` allows you to create executable Python zip artifacts with the standard `py_binary` rule. Subpar still supports some use cases `--build_python_zip` doesn't: In particular, it allows you to build archives of specific targets without using a global command-line flag, and in some cases the archives can run in-place without extraction.
+This project is unmaintained and considered deprecated.
+Historically, subpar was the only way to produce a deployable Python artifact in Bazel. 
+This is no longer true; `--build_python_zip` and the `python_zip_file` output_group allows you to create executable Python zip artifacts with the standard `py_binary` rule.
+`rules_docker` can also be used to build container images that launch `py_binary`.
 
 ## Setup
 
