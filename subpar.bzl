@@ -134,7 +134,7 @@ parfile_attrs = {
     "compiler": attr.label(
         default = Label(DEFAULT_COMPILER),
         executable = True,
-        cfg = "host",
+        cfg = "exec",
     ),
     "compiler_args": attr.string_list(default = []),
     "zip_safe": attr.bool(default = True),
