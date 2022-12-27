@@ -1,2 +1,2 @@
 # CentOS 7
-setuptools==0.9.8
+setuptools==65.5.1
