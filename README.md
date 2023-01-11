@@ -20,7 +20,7 @@ This is no longer true; `--build_python_zip` and the `python_zip_file` output_gr
 git_repository(
     name = "subpar",
     remote = "https://github.com/google/subpar",
-    tag = "1.0.0",
+    tag = "<latest>",
 )
 ```
 
