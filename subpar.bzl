@@ -18,6 +18,12 @@ load("@rules_python//python:defs.bzl", "py_binary", "py_test")
 
 DEFAULT_COMPILER = "//compiler:compiler.par"
 
+def _has_any_prefixes(filename, prefixes):
+    for prefix in prefixes:
+        if filename.startswith(prefix):
+            return True
+    return False
+
 def _parfile_impl(ctx):
     """Implementation of parfile() rule"""
 
@@ -45,8 +51,11 @@ def _parfile_impl(ctx):
         local_path = ""
         sources_map[stored_path] = local_path
 
+
     # Now add the regular (source and generated) files
     for input_file in inputs:
+        if _has_any_prefixes(input_file.path, ctx.attr.exclude_prefixes):
+            continue
         stored_path = _prepend_workspace(input_file.short_path, ctx)
         local_path = input_file.path
         sources_map[stored_path] = local_path
@@ -138,6 +147,7 @@ parfile_attrs = {
     ),
     "compiler_args": attr.string_list(default = []),
     "zip_safe": attr.bool(default = True),
+    "exclude_prefixes": attr.string_list(default = []),
 }
 
 # Rule to create a parfile given a py_binary() as input
@@ -173,6 +183,8 @@ Args:
             extracted to a temporary directory on disk each time the
             par file executes.
 
+  exclude_prefixes: Path prefixes to exclude from the generated archive.
+
 TODO(b/27502830): A directory foo.par.runfiles is also created. This
 is a bug, don't use or depend on it.
 """
@@ -206,6 +218,7 @@ def par_binary(name, **kwargs):
     compiler = kwargs.pop("compiler", None)
     compiler_args = kwargs.pop("compiler_args", [])
     zip_safe = kwargs.pop("zip_safe", True)
+    exclude_prefixes = kwargs.pop("exclude_prefixes", [])
     py_binary(name = name, **kwargs)
 
     main = kwargs.get("main", name + ".py")
@@ -225,6 +238,7 @@ def par_binary(name, **kwargs):
         testonly = testonly,
         visibility = visibility,
         zip_safe = zip_safe,
+        exclude_prefixes = exclude_prefixes,
         tags = tags,
     )
 
