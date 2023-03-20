@@ -89,6 +89,8 @@ def _parfile_impl(ctx):
     ]
     for import_root in import_roots:
         args.extend(['--import_root', import_root])
+    if ctx.attr.interpreter:
+        args.extend(['--interpreter', ctx.attr.interpreter])
     args.append(main_py_file.path)
 
     # Run compiler
@@ -137,6 +139,7 @@ parfile_attrs = {
         cfg = "exec",
     ),
     "compiler_args": attr.string_list(default = []),
+    "interpreter": attr.string(),
     "zip_safe": attr.bool(default = True),
 }
 
@@ -205,6 +208,7 @@ def par_binary(name, **kwargs):
     """
     compiler = kwargs.pop("compiler", None)
     compiler_args = kwargs.pop("compiler_args", [])
+    interpreter = kwargs.pop("interpreter", None)
     zip_safe = kwargs.pop("zip_safe", True)
     py_binary(name = name, **kwargs)
 
@@ -219,6 +223,7 @@ def par_binary(name, **kwargs):
         compiler_args = compiler_args,
         default_python_version = default_python_version,
         imports = imports,
+        interpreter = interpreter,
         main = main,
         name = name + ".par",
         src = name,
@@ -235,6 +240,7 @@ def par_test(name, **kwargs):
     specifically need to test a module's behaviour when used in a .par binary.
     """
     compiler = kwargs.pop("compiler", None)
+    interpreter = kwargs.pop("interpreter", None)
     zip_safe = kwargs.pop("zip_safe", True)
     py_test(name = name, **kwargs)
 
@@ -248,6 +254,7 @@ def par_test(name, **kwargs):
         compiler = compiler,
         default_python_version = default_python_version,
         imports = imports,
+        interpreter = interpreter,
         main = main,
         name = name + ".par",
         src = name,
