@@ -234,6 +234,14 @@ class PythonArchive(object):
             if local_path is None:
                 stored_resources[stored_path] = stored_resource.EmptyFile(
                     stored_path, self.timestamp_tuple)
+            elif os.path.isdir(local_path):
+                for local_root, dirs, files in os.walk(local_path):
+                    for f in files:
+                        stored_root = local_root.replace(local_path, stored_path, 1)
+                        stored_fpath = os.path.join(stored_root, f)
+                        local_fpath = os.path.join(local_root, f)
+                        stored_resources[stored_fpath] = stored_resource.StoredFile(
+                            stored_fpath, self.timestamp_tuple, local_fpath)
             else:
                 stored_resources[stored_path] = stored_resource.StoredFile(
                     stored_path, self.timestamp_tuple, local_path)
